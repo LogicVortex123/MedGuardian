@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Sign Up</title>
+    <style>
+        /* --- General Styling and Fonts (Consistent with Login Page) --- */
+        :root {
+            --color-primary-blue: #5793f7; 
+            --color-secondary-yellow: #fff367; 
+            --color-text-dark: #1e3050;
+            --color-text-light: #ffffff;
+            --color-button-blue: #3086e7;
+            --color-pill-green: #78c85c;
+            --color-input-bg: #f4f7fa;
+            --color-error: #ff4d4d; 
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-primary-blue);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden; 
+        }
+
+        /* --- Background Decoration (Same as Login) --- */
+        .background-decor-signup {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .bg-element {
+            position: absolute;
+            opacity: 0.2;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.1));
+        }
+
+        .bg-element.clock-top {
+            width: 150px; height: 150px;
+            top: -50px; left: -50px;
+            background-color: var(--color-secondary-yellow);
+            border-radius: 50%;
+            border: 10px solid var(--color-pill-green);
+        }
+
+        .bg-element.pill-bottom {
+            width: 120px; height: 50px;
+            bottom: 20px; right: -50px;
+            background: linear-gradient(to right, var(--color-pill-green) 50%, var(--color-text-light) 50%);
+            border-radius: 25px;
+            transform: rotate(-20deg);
+        }
+        
+        /* --- Sign Up Box Container --- */
+        .signup-container {
+            background-color: var(--color-text-light);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px; /* Slightly wider for more input fields */
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- Header/Logo Styling (Same as Login) --- */
+        .signup-header {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .signup-header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .signup-header p {
+            color: #777;
+            margin: 0;
+        }
+        
+        .logo-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .icon-clock {
+            background: #ffffff;
+            border: 4px solid orange; 
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .icon-pill-green {
+            width: 40px;
+            border-radius: 15px;
+            background: linear-gradient(to right, var(--color-pill-green), #ffffff);
+        }
+
+        /* --- Form Elements --- */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid transparent; 
+            border-radius: 10px;
+            background-color: var(--color-input-bg);
+            font-size: 16px;
+            box-sizing: border-box; 
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border: 2px solid var(--color-primary-blue);
+        }
+        
+        .error-message {
+            color: var(--color-error);
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 600;
+            text-align: center;
+            height: 18px; 
+        }
+
+
+        .signup-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--color-pill-green); /* Use green for success/new action */
+            color: var(--color-text-light);
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .signup-button:hover {
+            background-color: #63b14d;
+        }
+
+        /* --- Footer Links --- */
+        .footer-links {
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: var(--color-primary-blue);
+            text-decoration: none;
+            margin: 0 8px;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="background-decor-signup">
+        <div class="bg-element clock-top"></div>
+        <div class="bg-element pill-bottom"></div>
+    </div>
+
+    <div class="signup-container">
+        
+        <div class="signup-header">
+            <div class="logo-icons">
+                <span class="icon-small icon-clock"></span>
+                <span class="icon-small icon-pill-green"></span>
+            </div>
+            <h2>Create Your MedGuardian Account</h2>
+            <p>Start managing your medication journey today</p>
+        </div>
+
+        <form id="signupForm">
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email address">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Create a password">
+            </div>
+
+            <div class="input-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required placeholder="Re-enter your password">
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+
+            <button type="submit" class="signup-button">
+                Sign Up
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <p style="margin-bottom: 5px;">Already have an account?</p>
+            <a href="login.html">Sign In Here</a>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = ''; 
+
+            // --- 1. Basic Front-end Validation: Check for empty fields ---
+            if (email === '' || password === '' || confirmPassword === '') {
+                errorMessage.textContent = 'All fields are required for sign up.';
+                return; 
+            }
+
+            // --- 2. Password Match Check ---
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Passwords do not match. Please re-enter.';
+                return;
+            }
+
+            // --- 3. Simple Password Length Check (Good practice) ---
+            if (password.length < 6) {
+                errorMessage.textContent = 'Password must be at least 6 characters long.';
+                return;
+            }
+
+            // --- 4. Simulated Account Creation ---
+            // In a real application, you would send this data to a server API.
+            
+            alert('Account successfully created! You are now being redirected to login.');
+            
+            // Redirect to the Login Page after successful sign up
+            window.location.href = 'login.html'; 
+        });
+    </script>
+
+</body>
+</html>
