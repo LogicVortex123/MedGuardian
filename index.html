@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Smart Medication Management</title>
+    <style>
+        /* --- General Styling and Fonts --- */
+        :root {
+            --color-primary-blue: #5793f7; 
+            --color-secondary-yellow: #fff367; 
+            --color-text-dark: #1e3050;
+            --color-text-light: #ffffff;
+            --color-button-blue: #3086e7;
+            --color-pill-green: #78c85c;
+            --color-pill-blue: #2a52be;
+            --color-feature-bg: #f4f7fa; /* Light background for feature boxes */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-primary-blue);
+            color: var(--color-text-dark);
+        }
+
+        /* --- Header / Navigation Bar --- */
+        .header-container {
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            padding: 15px 50px;
+            position: relative;
+            z-index: 100; /* High z-index to sit above waves/background */
+            background-color: var(--color-primary-blue);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-section h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--color-text-light);
+            margin: 0;
+            padding-left: 10px;
+        }
+
+        .nav-options a {
+            color: var(--color-text-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            margin-left: 30px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        /* Mock Icons (Clocks, Pills) */
+        .icon-mock {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .icon-clock { background: #ffffff; border: 3px solid orange; position: relative; }
+        .icon-pill-green { background: linear-gradient(to right, var(--color-pill-green), #ffffff); border-radius: 10px; }
+
+
+        /* --- Hero Section & Wavy Divider (Dashboard Feature 5 Preview) --- */
+        .hero-and-dashboard {
+            position: relative;
+            background-color: var(--color-primary-blue);
+            padding-bottom: 200px; /* Space for the wave to overlap */
+        }
+        
+        /* The decorative wavy divider */
+        .wavy-divider {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background-color: var(--color-text-light);
+            border-top-left-radius: 50% 100px;
+            border-top-right-radius: 50% 100px;
+            transform: translateY(50%);
+            z-index: 5;
+        }
+
+        /* Main Dashboard Content (Feature 5: User-Friendly Dashboard) */
+        .main-dashboard {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 80px 50px 50px; 
+            min-height: 600px;
+            background-color: var(--color-text-light);
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background-color: var(--color-secondary-yellow);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 45%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        /* (CSS for cards like .schedule-card, .progress-circle, .medication-card, etc. 
+           is kept as in the previous response for the dashboard look) */
+
+        /* Feature 5 Card Specific Styles (Simplified for brevity) */
+        .schedule-card h2 { font-size: 32px; font-weight: 700; margin-top: 0; }
+        .progress-circle { /* Conic/Radial gradient for the circle */
+            width: 100px; height: 100px; border-radius: 50%;
+            background: radial-gradient(closest-side, white 79%, transparent 80% 100%),
+                        conic-gradient(#5793f7 94%, #e0e0e0 0);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            font-size: 36px; font-weight: 800; color: var(--color-primary-blue);
+        }
+        .take-now-button {
+            width: 100%; padding: 15px; background-color: var(--color-button-blue);
+            color: var(--color-text-light); border: none; border-radius: 12px; font-size: 20px;
+            font-weight: 700; cursor: pointer; margin-top: 30px;
+        }
+
+        /* --- Features Section --- */
+        #features-section {
+            background-color: var(--color-feature-bg);
+            padding: 100px 50px;
+            text-align: center;
+        }
+
+        #features-section h2 {
+            font-size: 42px;
+            color: var(--color-text-dark);
+            margin-bottom: 60px;
+        }
+
+        .feature-grid {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-box {
+            background-color: var(--color-text-light);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+            width: 28%; /* To fit 3 per row comfortably */
+            min-width: 280px;
+            text-align: left;
+            transition: transform 0.3s;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-box h3 {
+            font-size: 24px;
+            color: var(--color-primary-blue);
+            margin-top: 15px;
+        }
+        .feature-box p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .icon {
+            font-size: 30px;
+            color: var(--color-pill-green);
+        }
+
+        /* Emergency Access Section (Feature 4) */
+        #emergency-access {
+            background-color: var(--color-primary-blue);
+            padding: 80px 50px;
+            text-align: center;
+            color: var(--color-text-light);
+        }
+        #emergency-access h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        #emergency-access p {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+        .emergency-button {
+            background-color: #ff4d4d; /* Red for alert */
+            color: var(--color-text-light);
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+        }
+        .emergency-button:hover {
+            background-color: #e03c3c;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background-color: var(--color-text-dark);
+            color: var(--color-text-light);
+            padding: 40px 50px;
+            text-align: center;
+            font-size: 14px;
+        }
+        footer a {
+            color: var(--color-secondary-yellow);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-and-dashboard">
+        <div class="header-container">
+            <div class="logo-section">
+                <span class="icon-mock icon-clock"></span>
+                <span class="icon-mock icon-pill-green"></span>
+                <h1>MedGuardian</h1>
+            </div>
+            <nav class="nav-options">
+                <a href="#home">Home</a>
+                <a href="#features-section">Features</a>
+                <a href="#emergency-access">Emergency</a>
+                <a href="#contact-us">Contact Us</a>
+                <a href="login.html">Login/Sign up</a>
+            </nav>
+        </div>
+
+        <div class="main-dashboard" id="home">
+            
+            <div class="card schedule-card">
+                <h2>Good morning, Alex</h2>
+                
+                <p style="font-size: 20px; font-weight: 600;">Today's schedule</p>
+
+                <div class="schedule-item">
+                    </div>
+                <div class="progress-section">
+                    <div class="progress-circle">94%</div>
+                    </div>
+
+                <button class="take-now-button">Take now</button>
+            </div>
+
+            <div class="card medication-card">
+                <h2>My Medications</h2>
+
+                <div class="medication-item">
+                    </div>
+                
+                <input type="text" class="note-input" placeholder="Add a note">
+
+                <div class="family-section">
+                    <h3>Family</h3>
+                    <div class="family-info">
+                        <div class="family-member">
+                            <strong>Dad</strong><small>Dad notified at 8:05 AM</small>
+                        </div>
+                        <div class="timeline">
+                            <small>Timeline</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="wavy-divider"></div>
+    </div>
+
+    <section id="features-section">
+        <h2>Key Features Designed for You</h2>
+        
+        <div class="feature-grid">
+            
+            <div class="feature-box">
+                <span class="icon">⏰</span>
+                <h3>Smart Medication Reminders</h3>
+                <p>Sends timely notifications to remind users to take their medicines according to their prescribed schedule, ensuring high adherence.</p>
+            </div>
+
+            <div class="feature-box">
+                <span class="icon">👨‍👩‍👧‍👦</span>
+                <h3>Family Notification System</h3>
+                <p>Automatically notifies designated family members when a medicine is successfully taken or missed, ensuring peace of mind and shared accountability.</p>
+            </div>
+
+            <div class="feature-box">
+                <span class="icon">📈</span>
+                <h3>Medicine Intake Tracking</h3>
+                <p>Records and tracks daily medication adherence with clear visuals, helping users and caregivers monitor progress, identify patterns, and ensure continuous care.</p>
+            </div>
+            
+        </div>
+    </section>
+
+    <section id="emergency-access">
+        <h2>Emergency Summary Access (Feature 4)</h2>
+        <p>In critical moments, speed and accuracy save lives. MedGuardian provides a quick, secure, and accessible summary of recent medicines, allergies, and essential health details for paramedics.</p>
+        <a href="#" class="emergency-button">View Emergency Card</a>
+    </section>
+
+    <footer id="contact-us">
+        <p>&copy; 2025 MedGuardian. All rights reserved.</p>
+        <div>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a> |
+            <a href="mailto:support@medguardian.com">Support</a>
+        </div>
+    </footer>
+
+</body>
+</html>
