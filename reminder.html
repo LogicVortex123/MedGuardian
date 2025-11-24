@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedGuardian - Smart Medication Reminders</title>
+  <style>
+    body {
+      
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: lightpink;
+    }
+
+    .header {
+      padding: 20px;
+      background-image: url("https://st2.depositphotos.com/33365862/43957/i/450/depositphotos_439570524-stock-photo-many-different-pills-alarm-clock.jpg");
+      background-repeat: no-repeat;
+      background-size:100% 100%;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background:lightgoldenrodyellow;
+      padding: 130px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border: 3px solid black;
+    }
+
+    .title {
+      background-color:lightgreen;
+      font-size: 50px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #34495e;
+    }
+
+    .desc {
+      background-color: lightcyan;
+      font-size: 21px;
+      color: #040404;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      background-color: lightcyan;
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      background-color: lightcyan;
+      background: #4c6ef5;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background: #3b5bdb;
+    }
+
+    .reminder-box {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #eef3ff;
+    }
+
+    .header h2{
+        font-size: 100px;
+        font-family:cursive
+    }
+
+    .header p{
+        font-size: 70px;
+        color: black;
+        font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        color:darkblue;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>MedGuardian</h2>
+    <p><b><u>Smart Medication Reminders</u></b></p>
+  </div>
+
+  <div class="container">
+    <div class="title">Smart Medication Reminders</div><br><br><br><br>
+    <div class="desc"><b>Sends timely notifications to remind users to take their medicines according to their prescribed schedule, ensuring high adherence.</b></div>
+
+    <label>Enter Medicine Name:</label><br>
+    <input type="text" id="medicine" placeholder="e.g. Vitamin D, Paracetamol" /><br><br>
+
+    <label>Select Time:</label><br>
+    <input type="time" id="time" />
+
+    <button onclick="setReminder()">Set Reminder</button><br><br><br><br>
+
+    <div id="output" class="reminder-box" style="display:none;"></div>
+  </div>
+
+  <script>
+    function setReminder() {
+      const med = document.getElementById("medicine").value;
+      const time = document.getElementById("time").value;
+      const output = document.getElementById("output");
+
+      if (!med || !time) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      output.style.display = "block";
+      output.innerHTML = `Reminder set for <b>${med}</b> at <b>${time}</b>. You will receive a notification.`;
+
+      // Simple local notification
+      const notifTime = new Date();
+      const [h, m] = time.split(":");
+      notifTime.setHours(h);
+      notifTime.setMinutes(m);
+
+      const now = new Date();
+      const delay = notifTime - now;
+
+      if (delay > 0) {
+        setTimeout(() => {
+          alert(`⏰ Time to take your medicine: ${med}`);
+        }, delay);
+      }
+    }
+  </script>
+</body>
+</html>
