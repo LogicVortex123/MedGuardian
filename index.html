@@ -155,28 +155,28 @@
             margin: 0 auto;
         }
 
-        .feature-box {
+        /* .feature-box {
             background-color: var(--color-text-light);
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
             width: 28%; /* To fit 3 per row comfortably */
-            min-width: 280px;
+            /* min-width: 280px;
             text-align: left;
             transition: transform 0.3s;
-        }
+        } */ 
 
-        .feature-box:hover {
+        .remin:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .feature-box h3 {
+        .remin h3 {
             font-size: 24px;
             color: var(--color-primary-blue);
             margin-top: 15px;
         }
-        .feature-box p {
+        .remin p {
             color: #666;
             line-height: 1.6;
         }
@@ -229,6 +229,17 @@
             text-decoration: none;
             margin: 0 10px;
         }
+
+        .remin{
+            background-color: var(--color-text-light);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+            width: 28%; /* To fit 3 per row comfortably */
+            min-width: 280px;
+            text-align: left;
+            transition: transform 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -252,7 +263,7 @@
         <div class="main-dashboard" id="home">
             
             <div class="card schedule-card">
-                <h2>Good morning, Alex</h2>
+                <h2>Good morning</h2>
                 
                 <p style="font-size: 20px; font-weight: 600;">Today's schedule</p>
 
@@ -294,25 +305,29 @@
         <h2>Key Features Designed for You</h2>
         
         <div class="feature-grid">
-            
-            <div class="feature-box">
-                <span class="icon">⏰</span>
-                <h3>Smart Medication Reminders</h3>
-                <p>Sends timely notifications to remind users to take their medicines according to their prescribed schedule, ensuring high adherence.</p>
-            </div>
-
-            <div class="feature-box">
-                <span class="icon">👨‍👩‍👧‍👦</span>
-                <h3>Family Notification System</h3>
-                <p>Automatically notifies designated family members when a medicine is successfully taken or missed, ensuring peace of mind and shared accountability.</p>
-            </div>
-
-            <div class="feature-box">
-                <span class="icon">📈</span>
-                <h3>Medicine Intake Tracking</h3>
-                <p>Records and tracks daily medication adherence with clear visuals, helping users and caregivers monitor progress, identify patterns, and ensure continuous care.</p>
-            </div>
-            
+            <button class="remin" onclick="window.location.href='reminder.html'">
+                <div id="Remind" class="feature-box">
+                    <span class="icon">⏰</span>
+                    <h3>Smart Medication Reminders</h3>
+                    <p>Sends timely notifications to remind users to take their medicines according to their prescribed schedule, ensuring high adherence.</p>
+                </div>
+            </button>
+         
+            <button class="remin" onclick="window.location.href=''">
+                <div class="feature-box">
+                    <span class="icon">👨‍👩‍👧‍👦</span>
+                    <h3>Family Notification System</h3>
+                    <p>Automatically notifies designated family members when a medicine is successfully taken or missed, ensuring peace of mind and shared accountability.</p>
+                </div>
+            </button>
+        
+            <button class="remin" onclick="window.location.href=''">
+                <div class="feature-box">
+                    <span class="icon">📈</span>
+                    <h3>Medicine Intake Tracking</h3>
+                    <p>Records and tracks daily medication adherence with clear visuals, helping users and caregivers monitor progress, identify patterns, and ensure continuous care.</p>
+                </div>
+            </button>
         </div>
     </section>
 
@@ -330,6 +345,14 @@
             <a href="mailto:support@medguardian.com">Support</a>
         </div>
     </footer>
+
+    <script>
+        let Remind= document.getElementById("remind")
+        Remind.addEventListener("click",()=>{
+            
+        })
+
+    </script>
 
 </body>
 </html>
