@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Family Notifications</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .family-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .family-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .family-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+            border-top: 4px solid var(--color-pill-green);
+            transition: transform var(--transition-fast);
+        }
+
+        .family-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .family-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .family-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary-blue), var(--color-pill-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-2xl);
+            color: var(--color-text-light);
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .family-name {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+
+        .family-relationship {
+            color: var(--color-text-muted);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .family-contact {
+            color: var(--color-text-medium);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            padding: var(--spacing-xs);
+            transition: transform var(--transition-fast);
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .notification-item {
+            background: var(--color-bg-light);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            border-left: 4px solid var(--color-success);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .notification-time {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+        }
+
+        .notification-message {
+            color: var(--color-text-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        .logout-btn {
+            background: none;
+            border: 2px solid var(--color-text-light);
+            color: var(--color-text-light);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+        }
+
+        .logout-btn:hover {
+            background: var(--color-text-light);
+            color: var(--color-primary-blue);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <span class="icon-mock icon-clock"></span>
+                <span class="icon-mock icon-pill-green"></span>
+                <h1>MedGuardian</h1>
+            </div>
+            <nav class="nav-options">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="medications.html">Medications</a>
+                <a href="tracking.html">Tracking</a>
+                <a href="family.html">Family</a>
+                <a href="emergency.html">Emergency</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="family-container">
+        <div class="page-header">
+            <h1>👨‍👩‍👧‍👦 Family Notifications</h1>
+            <button class="btn btn-primary" onclick="showAddModal()">+ Add Family Member</button>
+        </div>
+
+        <div class="card mb-xl">
+            <div class="card-header">
+                <h2 class="card-title">Family Members</h2>
+                <p>Add family members who will be notified when you take or miss medications</p>
+            </div>
+            <div class="card-body">
+                <div class="family-grid" id="familyGrid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>No family members added yet</p>
+                        <button class="btn btn-primary mt-md" onclick="showAddModal()">Add Family Member</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Notification History</h2>
+                <p>Recent notifications sent to your family members</p>
+            </div>
+            <div class="card-body">
+                <div id="notificationHistory">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📬</div>
+                        <p>No notifications sent yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Family Member Modal -->
+    <div id="familyModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Family Member</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="familyForm">
+                <input type="hidden" id="memberId">
+
+                <div class="form-group">
+                    <label for="memberName" class="form-label">Name *</label>
+                    <input type="text" id="memberName" class="form-input" required placeholder="e.g., John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label for="memberRelationship" class="form-label">Relationship *</label>
+                    <select id="memberRelationship" class="form-select" required>
+                        <option value="">Select relationship</option>
+                        <option value="Parent">Parent</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Child">Child</option>
+                        <option value="Sibling">Sibling</option>
+                        <option value="Friend">Friend</option>
+                        <option value="Caregiver">Caregiver</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="memberPhone" class="form-label">Phone Number *</label>
+                    <input type="tel" id="memberPhone" class="form-input" required placeholder="e.g., +1234567890">
+                </div>
+
+                <div class="form-group">
+                    <label for="memberEmail" class="form-label">Email (Optional)</label>
+                    <input type="email" id="memberEmail" class="form-input" placeholder="e.g., john@example.com">
+                </div>
+
+                <div class="flex gap-md">
+                    <button type="submit" class="btn btn-primary btn-full">Save Member</button>
+                    <button type="button" class="btn btn-secondary btn-full" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 MedGuardian. All rights reserved.</p>
+        <div>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a> |
+            <a href="mailto:support@medguardian.com">Support</a>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        MedGuardian.AuthManager.requireAuth();
+
+        let currentEditId = null;
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                MedGuardian.AuthManager.logout();
+            }
+        }
+
+        // Show add modal
+        function showAddModal() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = 'Add Family Member';
+            document.getElementById('familyForm').reset();
+            document.getElementById('memberId').value = '';
+            document.getElementById('familyModal').classList.remove('hidden');
+        }
+
+        // Show edit modal
+        async function showEditModal(id) {
+            currentEditId = id;
+            const member = await MedGuardian.db.get('familyMembers', id);
+
+            if (member) {
+                document.getElementById('modalTitle').textContent = 'Edit Family Member';
+                document.getElementById('memberId').value = id;
+                document.getElementById('memberName').value = member.name;
+                document.getElementById('memberRelationship').value = member.relationship;
+                document.getElementById('memberPhone').value = member.phone;
+                document.getElementById('memberEmail').value = member.email || '';
+                document.getElementById('familyModal').classList.remove('hidden');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('familyModal').classList.add('hidden');
+            currentEditId = null;
+        }
+
+        // Delete family member
+        async function deleteMember(id) {
+            if (confirm('Are you sure you want to remove this family member?')) {
+                try {
+                    await MedGuardian.FamilyManager.deleteFamilyMember(id);
+                    MedGuardian.Utils.showAlert('Family member removed successfully', 'success');
+                    loadFamilyMembers();
+                } catch (error) {
+                    MedGuardian.Utils.showAlert('Failed to remove family member', 'error');
+                }
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('familyForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const memberData = {
+                name: document.getElementById('memberName').value.trim(),
+                relationship: document.getElementById('memberRelationship').value,
+                phone: document.getElementById('memberPhone').value.trim(),
+                email: document.getElementById('memberEmail').value.trim()
+            };
+
+            try {
+                if (currentEditId) {
+                    // Update existing member
+                    memberData.id = currentEditId;
+                    memberData.userId = MedGuardian.AuthManager.getCurrentUser();
+                    await MedGuardian.FamilyManager.updateFamilyMember(memberData);
+                    MedGuardian.Utils.showAlert('Family member updated successfully', 'success');
+                } else {
+                    // Add new member
+                    await MedGuardian.FamilyManager.addFamilyMember(memberData);
+                    MedGuardian.Utils.showAlert('Family member added successfully', 'success');
+                }
+
+                closeModal();
+                loadFamilyMembers();
+            } catch (error) {
+                MedGuardian.Utils.showAlert('Failed to save family member', 'error');
+            }
+        });
+
+        // Get initials for avatar
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        // Load and display family members
+        async function loadFamilyMembers() {
+            const members = await MedGuardian.FamilyManager.getFamilyMembers();
+            const gridEl = document.getElementById('familyGrid');
+
+            if (members.length === 0) {
+                gridEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>No family members added yet</p>
+                        <button class="btn btn-primary mt-md" onclick="showAddModal()">Add Family Member</button>
+                    </div>
+                `;
+                return;
+            }
+
+            gridEl.innerHTML = '';
+
+            members.forEach(member => {
+                const card = document.createElement('div');
+                card.className = 'family-card';
+                card.innerHTML = `
+                    <div class="family-avatar">${getInitials(member.name)}</div>
+                    <div class="family-card-header">
+                        <div>
+                            <h3 class="family-name">${member.name}</h3>
+                            <div class="family-relationship">${member.relationship}</div>
+                        </div>
+                        <div>
+                            <button class="icon-btn" onclick="showEditModal(${member.id})" title="Edit">✏️</button>
+                            <button class="icon-btn" onclick="deleteMember(${member.id})" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="family-contact">📱 ${member.phone}</div>
+                    ${member.email ? `<div class="family-contact">📧 ${member.email}</div>` : ''}
+                `;
+                gridEl.appendChild(card);
+            });
+        }
+
+        // Load notification history
+        async function loadNotificationHistory() {
+            const notifications = await MedGuardian.NotificationManager.getNotifications();
+            const historyEl = document.getElementById('notificationHistory');
+
+            if (notifications.length === 0) {
+                historyEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📬</div>
+                        <p>No notifications sent yet</p>
+                        <p class="text-muted">Family members will be notified when you record medication intake</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by timestamp descending
+            notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            historyEl.innerHTML = '';
+
+            notifications.slice(0, 10).forEach(notif => {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                item.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-title">${notif.medicationName}</div>
+                        <div class="notification-time">${MedGuardian.Utils.formatTime(notif.timestamp)}</div>
+                    </div>
+                    <div class="notification-message">${notif.message}</div>
+                `;
+                historyEl.appendChild(item);
+            });
+        }
+
+        // Initialize page
+        async function initPage() {
+            await loadFamilyMembers();
+            await loadNotificationHistory();
+        }
+
+        initPage();
+
+        // Close modal on outside click
+        document.getElementById('familyModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>
