@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Family Notification System — MedGuardian</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#06b6d4;--muted:#94a3b8;--glass:rgba(255,255,255,0.04)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,#071028 0%, #08142a 100%);color:#e6eef8}
+    .wrap{max-width:980px;margin:32px auto;padding:24px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 6px 18px rgba(7,10,16,0.7)}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:0 6px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+
+    .med-list{display:flex;flex-direction:column;gap:12px}
+    .med{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02)}
+    .med .left{display:flex;gap:12px;align-items:center}
+    .pill{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#09304d,#052a3a);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .meta{line-height:1}
+    .meta .name{font-weight:600}
+    .meta .time{font-size:12px;color:var(--muted)}
+
+    .actions{display:flex;gap:8px;align-items:center}
+    button.btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
+    button.primary{background:linear-gradient(90deg,var(--accent),#7c3aed);border:none;color:#041226}
+    .status{font-size:12px;padding:6px 8px;border-radius:8px}
+    .status.taken{background:rgba(34,197,94,0.12);color:#86efac;border:1px solid rgba(34,197,94,0.12)}
+    .status.missed{background:rgba(255,99,71,0.08);color:#ffb3a0;border:1px solid rgba(255,99,71,0.06)}
+
+    /* Family panel */
+    .family-list{display:flex;flex-direction:column;gap:10px}
+    .family-item{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02)}
+    .member{display:flex;gap:10px;align-items:center}
+    .avatar{width:40px;height:40px;border-radius:10px;background:#0b1220;display:flex;align-items:center;justify-content:center}
+    .log{height:240px;overflow:auto;padding:10px;border-radius:8px;background:#041022;border:1px solid rgba(255,255,255,0.02)}
+    .log .entry{font-size:13px;padding:8px;border-bottom:1px dashed rgba(255,255,255,0.02)}
+    .small{font-size:12px;color:var(--muted)}
+
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
+
+    @media (max-width:900px){.grid{grid-template-columns:1fr;}.wrap{padding:16px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">MG</div>
+      <div>
+        <h1>Family Notification System</h1>
+        <p class="lead">Automatically notify designated family members when a medicine is taken or missed — peace of mind for everyone.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3 style="margin-top:0">Today's Medicines</h3>
+        <div class="med-list" id="medList">
+          <!-- medicines injected by JavaScript -->
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+          <div class="small">Auto-check missed after <span id="missWindowLabel">15</span> minutes if not marked as taken.</div>
+          <div>
+            <button class="btn" id="addSample">Add sample med</button>
+            <button class="btn primary" id="requestNotifPerm">Enable Desktop Notifications</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card">
+        <h4 style="margin-top:0">Family & Notifications</h4>
+        <div class="family-list" id="familyList">
+          <!-- family members injected by JS -->
+        </div>
+
+        <h4 style="margin:12px 0 6px">Notification Log</h4>
+        <div class="log" id="log"></div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+          <div class="small">Local storage saves status. Backend/webhook supported (see comments).</div>
+          <button class="btn" id="clearLog">Clear</button>
+        </div>
+      </aside>
+    </div>
+
+    <footer>Tip: For real SMS/email/push delivery wire this to a server webhook (comments in code).</footer>
+  </div>
+
+  <script>
+    /*
+      Family Notification System (single-file demo)
+      - Simulates automatic notifications when medicine is taken or missed.
+      - Uses Web Notifications (desktop) if permitted.
+      - Keeps a notification log in localStorage and UI.
+      - To enable real notifications (SMS/email/push): POST to your server webhook URL from notifyFamily() where indicated.
+    */
+
+    // Sample data
+    const DEFAULT_FAMILY = [
+      {id: 'f1', name: 'Asha (Daughter)', contact: 'asha@example.com'},
+      {id: 'f2', name: 'Rohit (Husband)', contact: '+91 98765 43210'},
+      {id: 'f3', name: 'Neeta (Sister)', contact: 'neeta@example.com'},
+    ];
+
+    const DEFAULT_MEDS = [
+      {id: 'm1', name: 'Atenolol 50mg', time: addMinutesToNow(1), note: 'Blood pressure - morning', status: 'pending'},
+      {id: 'm2', name: 'Vitamin D 1000IU', time: addMinutesToNow(3), note: 'Daily supplement', status: 'pending'},
+    ];
+
+    const MISS_WINDOW_MIN = 15; // minutes until considered missed (configurable)
+
+    // state
+    let family = load('family') || DEFAULT_FAMILY;
+    let meds = load('meds') || DEFAULT_MEDS;
+
+    // UI refs
+    const medList = document.getElementById('medList');
+    const familyList = document.getElementById('familyList');
+    const logEl = document.getElementById('log');
+    const missLabel = document.getElementById('missWindowLabel');
+
+    missLabel.textContent = MISS_WINDOW_MIN;
+
+    // Initialize
+    renderFamily();
+    renderMeds();
+    renderLog();
+
+    // Request permission for Notifications
+    document.getElementById('requestNotifPerm').addEventListener('click', async ()=>{
+      if (!('Notification' in window)) return alert('Notifications not supported in this browser.');
+      const perm = await Notification.requestPermission();
+      alert('Notification permission: ' + perm);
+    });
+
+    document.getElementById('addSample').addEventListener('click', ()=>{
+      const newMed = {id: 'm'+Date.now(), name: 'Paracetamol 500mg', time: addMinutesToNow(2), note: 'If fever', status: 'pending'};
+      meds.push(newMed); save('meds', meds); renderMeds();
+    });
+
+    document.getElementById('clearLog').addEventListener('click', ()=>{ localStorage.removeItem('notifLog'); renderLog(); });
+
+    // Render functions
+    function renderMeds(){
+      medList.innerHTML='';
+      meds = meds.sort((a,b)=>new Date(a.time)-new Date(b.time));
+      meds.forEach(m => {
+        const el = document.createElement('div'); el.className='med';
+        const left = document.createElement('div'); left.className='left';
+        const pill = document.createElement('div'); pill.className='pill'; pill.textContent='Rx';
+        const meta = document.createElement('div'); meta.className='meta';
+        const name = document.createElement('div'); name.className='name'; name.textContent = m.name;
+        const time = document.createElement('div'); time.className='time'; time.textContent = formatTime(m.time) + (m.note ? ' • '+m.note : '');
+        meta.appendChild(name); meta.appendChild(time);
+        left.appendChild(pill); left.appendChild(meta);
+
+        const actions = document.createElement('div'); actions.className='actions';
+        const status = document.createElement('div'); status.className='status ' + (m.status==='taken' ? 'taken' : m.status==='missed' ? 'missed' : '');
+        status.textContent = m.status==='taken' ? 'Taken' : m.status==='missed' ? 'Missed' : 'Pending';
+        const takeBtn = document.createElement('button'); takeBtn.className='btn primary'; takeBtn.textContent='Mark as Taken';
+        takeBtn.onclick = ()=>markTaken(m.id);
+        const skipBtn = document.createElement('button'); skipBtn.className='btn'; skipBtn.textContent='Mark as Missed';
+        skipBtn.onclick = ()=>markMissed(m.id);
+        actions.appendChild(status); actions.appendChild(takeBtn); actions.appendChild(skipBtn);
+
+        el.appendChild(left); el.appendChild(actions);
+        medList.appendChild(el);
+
+        scheduleCheck(m);
+      });
+    }
+
+    function renderFamily(){
+      familyList.innerHTML='';
+      family.forEach(mem => {
+        const item = document.createElement('div'); item.className='family-item';
+        const left = document.createElement('div'); left.className='member';
+        const avatar = document.createElement('div'); avatar.className='avatar'; avatar.textContent = initials(mem.name);
+        const meta = document.createElement('div'); meta.innerHTML = `<div style="font-weight:600">${mem.name}</div><div class="small">${mem.contact}</div>`;
+        left.appendChild(avatar); left.appendChild(meta);
+
+        const tune = document.createElement('div'); tune.innerHTML = `<label class="small"><input type="checkbox" ${mem.enabled!==false? 'checked':''} data-id="${mem.id}"> Notify</label>`;
+        tune.querySelector('input').addEventListener('change', (e)=>{
+          mem.enabled = e.target.checked; save('family', family);
+        });
+
+        item.appendChild(left); item.appendChild(tune);
+        familyList.appendChild(item);
+      });
+    }
+
+    function renderLog(){
+      const log = load('notifLog') || [];
+      logEl.innerHTML='';
+      if(!log.length) logEl.innerHTML='<div class="small">No notifications yet — they will appear here.</div>';
+      log.slice().reverse().forEach(entry=>{
+        const d = document.createElement('div'); d.className='entry';
+        d.innerHTML = `<div style="font-weight:600">${entry.title}</div><div class="small">${new Date(entry.time).toLocaleString()} • Sent to: ${entry.targets.join(', ')}</div>`;
+        logEl.appendChild(d);
+      });
+    }
+
+    // Actions
+    function markTaken(medId){
+      const med = meds.find(x=>x.id===medId); if(!med) return;
+      med.status='taken'; med.takenAt = new Date().toISOString(); save('meds', meds); renderMeds();
+      notifyFamily(`${med.name} — Taken`, `${med.name} was taken at ${formatTime(new Date())}` , med, 'taken');
+    }
+
+    function markMissed(medId){
+      const med = meds.find(x=>x.id===medId); if(!med) return;
+      med.status='missed'; med.missedAt = new Date().toISOString(); save('meds', meds); renderMeds();
+      notifyFamily(`${med.name} — Missed`, `${med.name} was missed at ${formatTime(new Date())}` , med, 'missed');
+    }
+
+    // Automatic checking: if current time passes med.time + MISS_WINDOW_MIN -> mark missed
+    function scheduleCheck(med){
+      // Clear old timers
+      if(med._timer) clearTimeout(med._timer);
+      const when = new Date(med.time).getTime();
+      const now = Date.now();
+      // if already taken/missed, no timer
+      if(med.status!=='pending') return;
+      // If scheduled in future, set timeout; if already passed, check immediately
+      const diff = when + MISS_WINDOW_MIN*60*1000 - now;
+      const to = Math.max(0, diff);
+      med._timer = setTimeout(()=>{
+        // If still pending -> mark missed
+        const freshMed = meds.find(x=>x.id===med.id);
+        if(freshMed && freshMed.status==='pending'){
+          freshMed.status='missed'; freshMed.missedAt = new Date().toISOString(); save('meds', meds); renderMeds();
+          notifyFamily(`${freshMed.name} — Missed`, `${freshMed.name} was not taken by ${MISS_WINDOW_MIN} minutes after scheduled time.` , freshMed, 'missed');
+        }
+      }, to);
+    }
+
+    // Notify family: UI log + browser Notification + webhook placeholder
+    function notifyFamily(title, message, med, type){
+      // find enabled recipients
+      const targets = family.filter(f=>f.enabled!==false).map(f=>f.name + (f.contact ? ' ('+f.contact+')':''));
+      // Add to local log
+      const log = load('notifLog') || [];
+      const entry = {title, message, medId: med.id, time: new Date().toISOString(), targets};
+      log.push(entry); save('notifLog', log); renderLog();
+
+      // Browser Notification
+      if('Notification' in window && Notification.permission === 'granted'){
+        try{
+          const n = new Notification(title, {body: message, tag: med.id});
+          n.onclick = ()=>window.focus();
+        }catch(e){console.warn('Notification failed', e)}
+      }
+
+      // Simulate sending by showing a small toast (UI) — in production, POST to your server or call an API like Twilio/SendGrid/push service
+      showLocalToast(title + '\n' + message + '\nSent to: ' + targets.join(', '));
+
+      // ====== PLACEHOLDER: send to server webhook ======
+      // If you want real delivery, uncomment and set your webhook URL.
+      // fetch('https://your-server.example.com/webhook/notify', {
+      //   method: 'POST', headers: {'Content-Type':'application/json'},
+      //   body: JSON.stringify({title, message, med, type, targets})
+      // }).then(r=>r.json()).then(()=>console.log('Server notified')).catch(()=>console.warn('Webhook failed'));
+      // =================================================
+    }
+
+    // Utilities
+    function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+    function load(key){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):null }catch(e){return null} }
+    function formatTime(t){ const d = new Date(t); return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+    function addMinutesToNow(min){ return new Date(Date.now()+min*60*1000).toISOString(); }
+    function initials(name){ return name.split(' ').map(x=>x[0]||'').slice(0,2).join('').toUpperCase(); }
+
+    // Small UI toast
+    function showLocalToast(text){
+      const el = document.createElement('div'); el.textContent='';
+      el.style.position='fixed'; el.style.right='18px'; el.style.bottom='18px'; el.style.maxWidth='360px'; el.style.padding='12px'; el.style.borderRadius='10px'; el.style.background='linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02))'; el.style.boxShadow='0 8px 30px rgba(2,6,23,0.6)'; el.style.fontSize='13px';
+      el.innerHTML = `<strong style="display:block;margin-bottom:6px">Notification sent</strong><div style="white-space:pre-wrap;">${escapeHtml(text)}</div>`;
+      document.body.appendChild(el);
+      setTimeout(()=>{ el.style.transition='opacity 400ms'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); }, 4200);
+    }
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // On first load, ask for notification permission gracefully
+    (function askOnce(){ if(Notification && Notification.permission === 'default'){ /* don't spam the user; allow manual button */ }})();
+
+    // Helpful: Save state periodically and set timers for pending meds on load
+    window.addEventListener('beforeunload', ()=>{ save('family', family); save('meds', meds); });
+
+  </script>
+</body>
+</html>
