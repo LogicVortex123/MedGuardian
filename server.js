@@ -53,9 +53,25 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start Server
+// Start Server with automatic port selection
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📍 API available at http://localhost:${PORT}/api`);
-});
+
+const startServer = (port) => {
+    const server = app.listen(port)
+        .on('listening', () => {
+            console.log(`🚀 Server running on port ${port}`);
+            console.log(`📍 API available at http://localhost:${port}/api`);
+            console.log(`🌐 Frontend available at http://localhost:${port}/index.html`);
+        })
+        .on('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                console.log(`⚠️  Port ${port} is already in use, trying port ${port + 1}...`);
+                startServer(port + 1);
+            } else {
+                console.error('❌ Server Error:', err);
+                process.exit(1);
+            }
+        });
+};
+
+startServer(PORT);
