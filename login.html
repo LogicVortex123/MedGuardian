@@ -1,3 +1,289 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Login</title>
+    <style>
+        /* --- General Styling and Fonts --- */
+        :root {
+            --color-primary-blue: #5793f7; 
+            --color-secondary-yellow: #fff367; 
+            --color-text-dark: #1e3050;
+            --color-text-light: #ffffff;
+            --color-button-blue: #3086e7;
+            --color-pill-green: #78c85c;
+            --color-input-bg: #f4f7fa;
+            --color-error: #ff4d4d; /* New color for error messages */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-primary-blue);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden; 
+        }
+
+        /* --- Background Decoration (unchanged) --- */
+        .background-decor-login {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .bg-element {
+            position: absolute;
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 0.2;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.1));
+        }
+
+        .bg-element.clock-top {
+            width: 150px; height: 150px;
+            top: -50px; left: -50px;
+            background-color: var(--color-secondary-yellow);
+            border-radius: 50%;
+            border: 10px solid var(--color-pill-green);
+        }
+
+        .bg-element.pill-bottom {
+            width: 120px; height: 50px;
+            bottom: 20px; right: -50px;
+            background: linear-gradient(to right, var(--color-pill-green) 50%, var(--color-text-light) 50%);
+            border-radius: 25px;
+            transform: rotate(-20deg);
+        }
+        
+        /* --- Login Box Container (unchanged) --- */
+        .login-container {
+            background-color: var(--color-text-light);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- Header/Logo Styling (unchanged) --- */
+        .login-header {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .login-header p {
+            color: #777;
+            margin: 0;
+        }
+        
+        .logo-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .icon-clock {
+            background: #ffffff;
+            border: 4px solid orange; 
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .icon-pill-green {
+            width: 40px;
+            border-radius: 15px;
+            background: linear-gradient(to right, var(--color-pill-green), #ffffff);
+        }
+
+        /* --- Form Elements --- */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid transparent; /* default border */
+            border-radius: 10px;
+            background-color: var(--color-input-bg);
+            font-size: 16px;
+            box-sizing: border-box; 
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border: 2px solid var(--color-primary-blue);
+        }
+        
+        /* New: Error Message Styling */
+        .error-message {
+            color: var(--color-error);
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 600;
+            text-align: center;
+            height: 18px; /* Maintain space even when empty */
+        }
+
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--color-button-blue);
+            color: var(--color-text-light);
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .login-button:hover {
+            background-color: #246ac7;
+        }
+
+        /* --- Footer Links (unchanged) --- */
+        .footer-links {
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: var(--color-primary-blue);
+            text-decoration: none;
+            margin: 0 8px;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="background-decor-login">
+        <div class="bg-element clock-top"></div>
+        <div class="bg-element pill-bottom"></div>
+    </div>
+
+    <div class="login-container">
+        
+        <div class="login-header">
+            <div class="logo-icons">
+                <span class="icon-small icon-clock"></span>
+                <span class="icon-small icon-pill-green"></span>
+            </div>
+            <h2>MedGuardian Login</h2>
+            <p>Access your smart medication dashboard</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" placeholder="Enter your email or username">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password">
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+
+            <button type="submit" class="login-button">
+                Sign In to MedGuardian
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <a href="#">Forgot Password?</a> |
+            <a href="signup.html">Sign Up Now</a>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            // Prevent the default form submission (which would refresh the page)
+            event.preventDefault(); 
+
+            // Get form values and error element
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Clear previous error messages
+            errorMessage.textContent = ''; 
+
+            // --- 1. Basic Front-end Validation ---
+            if (username === '' || password === '') {
+                errorMessage.textContent = 'Please enter both username/email and password.';
+                return; // Stop the function if validation fails
+            }
+
+            // --- 2. Simulated Backend Check (Replace with real API call in a production app) ---
+            
+            // For demonstration, let's accept "test" as username/password
+            if (username === 'test' && password === 'test') {
+                // Successful Login Simulation
+                alert('Login Successful! Redirecting to dashboard.');
+                
+                // Redirect to the main dashboard page (Assuming the main page is saved as index.html)
+                window.location.href = 'index.html'; 
+            } else {
+                // Failed Login Simulation
+                errorMessage.textContent = 'Invalid credentials. Please try again.';
+            }
+        });
+    </script>
+
+</body>
+</html>
+=======
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -206,3 +492,4 @@
     </script>
 </body>
 </html>
+>>>>>>> aaf6021b1e1a5ac8de55a18378d0adad237e7054
