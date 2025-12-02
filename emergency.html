@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Emergency Medical Card</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .emergency-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .emergency-card {
+            background: var(--color-bg-light);
+            border: 3px solid var(--color-error);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-2xl);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .emergency-header {
+            text-align: center;
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--color-error);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .emergency-icon {
+            font-size: 60px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .emergency-title {
+            color: var(--color-error);
+            font-size: var(--font-size-3xl);
+            margin: 0 0 var(--spacing-sm) 0;
+        }
+
+        .emergency-subtitle {
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        .info-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .info-item {
+            background: var(--color-bg-gray);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+        }
+
+        .info-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .info-value {
+            font-size: var(--font-size-lg);
+            color: var(--color-text-dark);
+            font-weight: 600;
+        }
+
+        .medication-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .medication-list li {
+            background: var(--color-bg-gray);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .med-name {
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .med-dosage {
+            color: var(--color-text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .allergy-badge {
+            display: inline-block;
+            background: var(--color-error);
+            color: var(--color-text-light);
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-right: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-xl);
+            border-top: 2px solid var(--color-border);
+        }
+
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            background: var(--color-bg-gray);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-md);
+            font-size: 80px;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 2px solid var(--color-text-light);
+            color: var(--color-text-light);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+        }
+
+        .logout-btn:hover {
+            background: var(--color-text-light);
+            color: var(--color-primary-blue);
+        }
+
+        /* Print styles */
+        @media print {
+
+            header,
+            footer,
+            .action-buttons {
+                display: none !important;
+            }
+
+            .emergency-container {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .emergency-card {
+                border: 2px solid #000;
+                box-shadow: none;
+            }
+
+            body {
+                background: white;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <span class="icon-mock icon-clock"></span>
+                <span class="icon-mock icon-pill-green"></span>
+                <h1>MedGuardian</h1>
+            </div>
+            <nav class="nav-options">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="medications.html">Medications</a>
+                <a href="tracking.html">Tracking</a>
+                <a href="family.html">Family</a>
+                <a href="emergency.html">Emergency</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="emergency-container">
+        <div class="emergency-card">
+            <div class="emergency-header">
+                <div class="emergency-icon">🚨</div>
+                <h1 class="emergency-title">EMERGENCY MEDICAL CARD</h1>
+                <p class="emergency-subtitle">Critical Medical Information for First Responders</p>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="info-section">
+                <h2 class="section-title">Personal Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value" id="userName">Loading...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value" id="userEmail">Loading...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Emergency Contact</div>
+                        <div class="info-value" id="emergencyContact">Not provided</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Last Updated</div>
+                        <div class="info-value" id="lastUpdated">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Medications -->
+            <div class="info-section">
+                <h2 class="section-title">Current Medications</h2>
+                <ul class="medication-list" id="medicationList">
+                    <li style="background: transparent; justify-content: center;">
+                        <span class="text-muted">No medications recorded</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Allergies -->
+            <div class="info-section">
+                <h2 class="section-title">Known Allergies</h2>
+                <div id="allergiesList">
+                    <p class="text-muted">No allergies recorded. You can add this information in your profile settings.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Recent Intake -->
+            <div class="info-section">
+                <h2 class="section-title">Recent Medication Intake (Last 24 Hours)</h2>
+                <ul class="medication-list" id="recentIntake">
+                    <li style="background: transparent; justify-content: center;">
+                        <span class="text-muted">No recent intake records</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- QR Code -->
+            <div class="info-section">
+                <h2 class="section-title text-center">Quick Access QR Code</h2>
+                <div class="qr-code">📱</div>
+                <p class="text-center text-muted">Scan to access full medical profile online</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-danger btn-full" onclick="window.print()">
+                    🖨️ Print Emergency Card
+                </button>
+                <button class="btn btn-secondary btn-full" onclick="downloadCard()">
+                    💾 Download as PDF
+                </button>
+                <button class="btn btn-secondary btn-full" onclick="shareCard()">
+                    📤 Share Card
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 MedGuardian. All rights reserved.</p>
+        <div>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a> |
+            <a href="mailto:support@medguardian.com">Support</a>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        MedGuardian.AuthManager.requireAuth();
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                MedGuardian.AuthManager.logout();
+            }
+        }
+
+        // Load user information
+        async function loadUserInfo() {
+            const userEmail = MedGuardian.AuthManager.getCurrentUser();
+            const user = await MedGuardian.db.get('users', userEmail);
+
+            if (user) {
+                document.getElementById('userName').textContent = user.name || 'Not provided';
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('emergencyContact').textContent = user.emergencyContact || 'Not provided';
+                document.getElementById('lastUpdated').textContent = MedGuardian.Utils.formatDate(user.createdAt);
+            }
+        }
+
+        // Load current medications
+        async function loadMedications() {
+            const medications = await MedGuardian.MedicationManager.getUserMedications();
+            const listEl = document.getElementById('medicationList');
+
+            if (medications.length === 0) {
+                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No medications recorded</span></li>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+
+            medications.forEach(med => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div>
+                        <div class="med-name">${med.name}</div>
+                        <div class="med-dosage">${med.dosage} • ${med.frequency}</div>
+                    </div>
+                    <div class="badge badge-info">${med.time}</div>
+                `;
+                listEl.appendChild(li);
+            });
+        }
+
+        // Load recent intake (last 24 hours)
+        async function loadRecentIntake() {
+            const now = new Date();
+            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const todayStr = now.toISOString().split('T')[0];
+
+            const records = await MedGuardian.IntakeTracker.getUserIntakeRecords(yesterdayStr, todayStr);
+            const listEl = document.getElementById('recentIntake');
+
+            if (records.length === 0) {
+                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No recent intake records</span></li>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+
+            // Sort by timestamp descending
+            records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            for (const record of records) {
+                const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div>
+                        <div class="med-name">${medication ? medication.name : 'Unknown'}</div>
+                        <div class="med-dosage">${MedGuardian.Utils.formatDateTime(record.timestamp)}</div>
+                    </div>
+                    <span class="badge badge-success">✓ Taken</span>
+                `;
+                listEl.appendChild(li);
+            }
+        }
+
+        // Download card as PDF (simulated)
+        function downloadCard() {
+            MedGuardian.Utils.showAlert('PDF download feature coming soon! Use Print to save as PDF.', 'info');
+            // In production, you would use a library like jsPDF or html2pdf
+        }
+
+        // Share card
+        function shareCard() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'MedGuardian Emergency Card',
+                    text: 'My emergency medical information',
+                    url: window.location.href
+                }).catch(() => {
+                    copyLink();
+                });
+            } else {
+                copyLink();
+            }
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href);
+            MedGuardian.Utils.showAlert('Link copied to clipboard!', 'success');
+        }
+
+        // Initialize page
+        async function initPage() {
+            await loadUserInfo();
+            await loadMedications();
+            await loadRecentIntake();
+        }
+
+        initPage();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedGuardian - Smart Medication Reminders</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-pill-green) 100%);
+      min-height: 100vh;
+    }
+
+    .reminder-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: var(--spacing-xl);
+    }
+
+    .reminder-header {
+      background: var(--color-bg-light);
+      padding: var(--spacing-2xl);
+      border-radius: var(--radius-xl);
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .reminder-header h1 {
+      color: var(--color-primary-blue);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .reminder-form-card {
+      background: var(--color-secondary-yellow);
+      padding: var(--spacing-2xl);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .reminder-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .reminder-item {
+      background: var(--color-bg-light);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .reminder-info h4 {
+      margin: 0 0 var(--spacing-xs) 0;
+      color: var(--color-text-dark);
+    }
+
+    .reminder-info p {
+      margin: 0;
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+    }
+
+    .logout-btn {
+      background: none;
+      border: 2px solid var(--color-text-light);
+      color: var(--color-text-light);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all var(--transition-fast);
+    }
+
+    .logout-btn:hover {
+      background: var(--color-text-light);
+      color: var(--color-primary-blue);
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-section">
+        <span class="icon-mock icon-clock"></span>
+        <span class="icon-mock icon-pill-green"></span>
+        <h1>MedGuardian</h1>
+      </div>
+      <nav class="nav-options">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="medications.html">Medications</a>
+        <a href="tracking.html">Tracking</a>
+        <a href="family.html">Family</a>
+        <button class="logout-btn" onclick="logout()" id="logoutBtn" style="display: none;">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="reminder-container">
+    <div class="reminder-header">
+      <h1>⏰ Smart Medication Reminders</h1>
+      <p>Set timely notifications to never miss your medication schedule</p>
+    </div>
+
+    <div class="reminder-form-card">
+      <h2>Set New Reminder</h2>
+
+      <div class="form-group">
+        <label for="medicine" class="form-label">Medicine Name</label>
+        <input type="text" id="medicine" class="form-input" placeholder="e.g. Vitamin D, Paracetamol" />
+      </div>
+
+      <div class="form-group">
+        <label for="time" class="form-label">Select Time</label>
+        <input type="time" id="time" class="form-input" />
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" onclick="setReminder()">Set Reminder</button>
+
+      <div id="output" class="alert alert-success mt-lg" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Active Reminders</h2>
+      </div>
+      <div class="card-body">
+        <ul class="reminder-list" id="reminderList">
+          <li class="empty-state">
+            <div class="empty-state-icon">⏰</div>
+            <p>No active reminders</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 MedGuardian. All rights reserved.</p>
+    <div>
+      <a href="#">Privacy Policy</a> |
+      <a href="#">Terms of Service</a> |
+      <a href="mailto:support@medguardian.com">Support</a>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+  <script>
+    // Show logout button if logged in
+    if (MedGuardian.AuthManager.isLoggedIn()) {
+      document.getElementById('logoutBtn').style.display = 'block';
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        MedGuardian.AuthManager.logout();
+      }
+    }
+
+    // Store reminders in localStorage
+    let reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
+
+    function setReminder() {
+      const med = document.getElementById("medicine").value.trim();
+      const time = document.getElementById("time").value;
+      const output = document.getElementById("output");
+
+      if (!med || !time) {
+        MedGuardian.Utils.showAlert('Please fill all fields.', 'warning');
+        return;
+      }
+
+      // Add to reminders list
+      const reminder = { medicine: med, time: time, id: Date.now() };
+      reminders.push(reminder);
+      localStorage.setItem('reminders', JSON.stringify(reminders));
+
+      output.style.display = "block";
+      output.textContent = `Reminder set for ${med} at ${time}. You will receive a notification.`;
+
+      // Request notification permission
+      MedGuardian.NotificationManager.requestPermission().then(granted => {
+        if (granted) {
+          // Schedule notification
+          const scheduledTime = MedGuardian.NotificationManager.scheduleReminder(med, time);
+          console.log('Reminder scheduled for:', scheduledTime);
+        }
+      });
+
+      // Clear form
+      document.getElementById("medicine").value = '';
+      document.getElementById("time").value = '';
+
+      // Reload list
+      loadReminders();
+
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        output.style.display = "none";
+      }, 3000);
+    }
+
+    function deleteReminder(id) {
+      reminders = reminders.filter(r => r.id !== id);
+      localStorage.setItem('reminders', JSON.stringify(reminders));
+      loadReminders();
+      MedGuardian.Utils.showAlert('Reminder deleted', 'success');
+    }
+
+    function loadReminders() {
+      const listEl = document.getElementById('reminderList');
+
+      if (reminders.length === 0) {
+        listEl.innerHTML = `
+          <li class="empty-state">
+            <div class="empty-state-icon">⏰</div>
+            <p>No active reminders</p>
+          </li>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = '';
+
+      reminders.forEach(reminder => {
+        const li = document.createElement('li');
+        li.className = 'reminder-item';
+        li.innerHTML = `
+          <div class="reminder-info">
+            <h4>${reminder.medicine}</h4>
+            <p>Scheduled for ${reminder.time}</p>
+          </div>
+          <button class="btn btn-danger" onclick="deleteReminder(${reminder.id})">Delete</button>
+        `;
+        listEl.appendChild(li);
+      });
+    }
+
+    // Load reminders on page load
+    loadReminders();
+  </script>
+</body>
+
+</html>

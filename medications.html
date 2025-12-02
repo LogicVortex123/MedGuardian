@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Manage Medications</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .medications-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .medications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .med-card {
+            background: var(--color-bg-light);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--color-primary-blue);
+            transition: transform var(--transition-fast);
+        }
+
+        .med-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .med-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .med-card-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin: 0;
+        }
+
+        .med-card-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            padding: var(--spacing-xs);
+            transition: transform var(--transition-fast);
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .med-detail {
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-text-medium);
+        }
+
+        .med-detail strong {
+            color: var(--color-text-dark);
+        }
+
+        .logout-btn {
+            background: none;
+            border: 2px solid var(--color-text-light);
+            color: var(--color-text-light);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+        }
+
+        .logout-btn:hover {
+            background: var(--color-text-light);
+            color: var(--color-primary-blue);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <span class="icon-mock icon-clock"></span>
+                <span class="icon-mock icon-pill-green"></span>
+                <h1>MedGuardian</h1>
+            </div>
+            <nav class="nav-options">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="medications.html">Medications</a>
+                <a href="tracking.html">Tracking</a>
+                <a href="family.html">Family</a>
+                <a href="emergency.html">Emergency</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="medications-container">
+        <div class="page-header">
+            <h1>My Medications</h1>
+            <button class="btn btn-primary" onclick="showAddModal()">+ Add Medication</button>
+        </div>
+
+        <div class="medications-grid" id="medicationsGrid">
+            <div class="empty-state">
+                <div class="empty-state-icon">💊</div>
+                <p>No medications added yet</p>
+                <button class="btn btn-primary mt-md" onclick="showAddModal()">Add Your First Medication</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Medication Modal -->
+    <div id="medicationModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Medication</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="medicationForm">
+                <input type="hidden" id="medId">
+
+                <div class="form-group">
+                    <label for="medName" class="form-label">Medication Name *</label>
+                    <input type="text" id="medName" class="form-input" required placeholder="e.g., Aspirin">
+                </div>
+
+                <div class="form-group">
+                    <label for="medDosage" class="form-label">Dosage *</label>
+                    <input type="text" id="medDosage" class="form-input" required placeholder="e.g., 100mg">
+                </div>
+
+                <div class="form-group">
+                    <label for="medFrequency" class="form-label">Frequency *</label>
+                    <select id="medFrequency" class="form-select" required>
+                        <option value="">Select frequency</option>
+                        <option value="once daily">Once daily</option>
+                        <option value="2 times daily">Twice daily</option>
+                        <option value="3 times daily">Three times daily</option>
+                        <option value="4 times daily">Four times daily</option>
+                        <option value="as needed">As needed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="medTime" class="form-label">Time *</label>
+                    <input type="time" id="medTime" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="medNotes" class="form-label">Notes (Optional)</label>
+                    <textarea id="medNotes" class="form-textarea" placeholder="Any special instructions..."></textarea>
+                </div>
+
+                <div class="flex gap-md">
+                    <button type="submit" class="btn btn-primary btn-full">Save Medication</button>
+                    <button type="button" class="btn btn-secondary btn-full" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 MedGuardian. All rights reserved.</p>
+        <div>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a> |
+            <a href="mailto:support@medguardian.com">Support</a>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // Require authentication
+        MedGuardian.AuthManager.requireAuth();
+
+        let currentEditId = null;
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                MedGuardian.AuthManager.logout();
+            }
+        }
+
+        // Show add modal
+        function showAddModal() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = 'Add Medication';
+            document.getElementById('medicationForm').reset();
+            document.getElementById('medId').value = '';
+            document.getElementById('medicationModal').classList.remove('hidden');
+        }
+
+        // Show edit modal
+        async function showEditModal(id) {
+            currentEditId = id;
+            const medication = await MedGuardian.MedicationManager.getMedication(id);
+
+            if (medication) {
+                document.getElementById('modalTitle').textContent = 'Edit Medication';
+                document.getElementById('medId').value = id;
+                document.getElementById('medName').value = medication.name;
+                document.getElementById('medDosage').value = medication.dosage;
+                document.getElementById('medFrequency').value = medication.frequency;
+                document.getElementById('medTime').value = medication.time;
+                document.getElementById('medNotes').value = medication.notes || '';
+                document.getElementById('medicationModal').classList.remove('hidden');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('medicationModal').classList.add('hidden');
+            currentEditId = null;
+        }
+
+        // Delete medication
+        async function deleteMedication(id) {
+            if (confirm('Are you sure you want to delete this medication?')) {
+                try {
+                    await MedGuardian.MedicationManager.deleteMedication(id);
+                    MedGuardian.Utils.showAlert('Medication deleted successfully', 'success');
+                    loadMedications();
+                } catch (error) {
+                    MedGuardian.Utils.showAlert('Failed to delete medication', 'error');
+                }
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('medicationForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const medicationData = {
+                name: document.getElementById('medName').value.trim(),
+                dosage: document.getElementById('medDosage').value.trim(),
+                frequency: document.getElementById('medFrequency').value,
+                time: document.getElementById('medTime').value,
+                notes: document.getElementById('medNotes').value.trim()
+            };
+
+            try {
+                if (currentEditId) {
+                    // Update existing medication
+                    medicationData.id = currentEditId;
+                    medicationData.userId = MedGuardian.AuthManager.getCurrentUser();
+                    await MedGuardian.MedicationManager.updateMedication(medicationData);
+                    MedGuardian.Utils.showAlert('Medication updated successfully', 'success');
+                } else {
+                    // Add new medication
+                    await MedGuardian.MedicationManager.addMedication(medicationData);
+                    MedGuardian.Utils.showAlert('Medication added successfully', 'success');
+
+                    // Schedule reminder
+                    MedGuardian.NotificationManager.scheduleReminder(medicationData.name, medicationData.time);
+                }
+
+                closeModal();
+                loadMedications();
+            } catch (error) {
+                MedGuardian.Utils.showAlert('Failed to save medication', 'error');
+            }
+        });
+
+        // Load and display medications
+        async function loadMedications() {
+            const medications = await MedGuardian.MedicationManager.getUserMedications();
+            const gridEl = document.getElementById('medicationsGrid');
+
+            if (medications.length === 0) {
+                gridEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💊</div>
+                        <p>No medications added yet</p>
+                        <button class="btn btn-primary mt-md" onclick="showAddModal()">Add Your First Medication</button>
+                    </div>
+                `;
+                return;
+            }
+
+            gridEl.innerHTML = '';
+
+            medications.forEach(med => {
+                const card = document.createElement('div');
+                card.className = 'med-card';
+                card.innerHTML = `
+                    <div class="med-card-header">
+                        <h3 class="med-card-title">${med.name}</h3>
+                        <div class="med-card-actions">
+                            <button class="icon-btn" onclick="showEditModal(${med.id})" title="Edit">✏️</button>
+                            <button class="icon-btn" onclick="deleteMedication(${med.id})" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="med-detail"><strong>Dosage:</strong> ${med.dosage}</div>
+                    <div class="med-detail"><strong>Frequency:</strong> ${med.frequency}</div>
+                    <div class="med-detail"><strong>Time:</strong> ${med.time}</div>
+                    ${med.notes ? `<div class="med-detail"><strong>Notes:</strong> ${med.notes}</div>` : ''}
+                `;
+                gridEl.appendChild(card);
+            });
+        }
+
+        // Initialize
+        loadMedications();
+
+        // Close modal on outside click
+        document.getElementById('medicationModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

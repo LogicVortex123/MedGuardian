@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -282,3 +283,213 @@
 
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-pill-green) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background decoration */
+        .bg-decor {
+            position: absolute;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .bg-circle-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--color-secondary-yellow);
+            border-radius: 50%;
+            top: -100px;
+            left: -100px;
+        }
+
+        .bg-circle-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--color-text-light);
+            border-radius: 50%;
+            bottom: -50px;
+            right: -50px;
+        }
+
+        .login-container {
+            background: var(--color-bg-light);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-2xl);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.5s ease;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .logo-icons {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .icon-small {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+
+        .icon-clock {
+            background: var(--color-text-light);
+            border: 4px solid orange;
+        }
+
+        .icon-pill {
+            width: 45px;
+            border-radius: 15px;
+            background: linear-gradient(to right, var(--color-pill-green), var(--color-text-light));
+        }
+
+        .login-header h1 {
+            font-size: var(--font-size-3xl);
+            color: var(--color-text-dark);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .login-header p {
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+        }
+
+        .footer-links p {
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text-muted);
+        }
+
+        #errorMessage {
+            min-height: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decor bg-circle-1"></div>
+    <div class="bg-decor bg-circle-2"></div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo-icons">
+                <span class="icon-small icon-clock"></span>
+                <span class="icon-small icon-pill"></span>
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to manage your medications</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    required 
+                    placeholder="Enter your email"
+                    aria-label="Email Address"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    required 
+                    placeholder="Enter your password"
+                    aria-label="Password"
+                >
+            </div>
+
+            <div id="errorMessage" class="form-error" role="alert"></div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg">
+                Sign In
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <p>Don't have an account?</p>
+            <a href="signup.html">Create Account</a>
+            <span style="margin: 0 var(--spacing-sm);">|</span>
+            <a href="index.html">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            errorMessage.textContent = '';
+
+            // Basic validation
+            if (email === '' || password === '') {
+                errorMessage.textContent = 'Please fill in all fields.';
+                return;
+            }
+
+            // Attempt login
+            const result = await MedGuardian.AuthManager.login(email, password);
+
+            if (result.success) {
+                // Show success message
+                MedGuardian.Utils.showAlert('Login successful! Redirecting...', 'success');
+                
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } else {
+                errorMessage.textContent = result.error || 'Login failed. Please try again.';
+            }
+        });
+
+        // Check if already logged in
+        if (MedGuardian.AuthManager.isLoggedIn()) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
+>>>>>>> aaf6021b1e1a5ac8de55a18378d0adad237e7054

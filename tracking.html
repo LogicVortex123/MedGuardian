@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Medication Tracking</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .tracking-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .tracking-header {
+            background: linear-gradient(135deg, var(--color-pill-green), var(--color-pill-green-dark));
+            color: var(--color-text-light);
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .tracking-header h1 {
+            color: var(--color-text-light);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .adherence-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-lg);
+        }
+
+        .adherence-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(closest-side, var(--color-pill-green) 79%, transparent 80% 100%),
+                conic-gradient(var(--color-text-light) var(--progress, 0%), #4a7c3a 0);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: var(--font-size-4xl);
+            font-weight: 800;
+            color: var(--color-text-light);
+        }
+
+        .adherence-stats {
+            text-align: left;
+        }
+
+        .adherence-stats div {
+            margin-bottom: var(--spacing-sm);
+            font-size: var(--font-size-lg);
+        }
+
+        .record-intake-section {
+            background: var(--color-secondary-yellow);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .intake-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: var(--spacing-md);
+            align-items: end;
+        }
+
+        .photo-upload {
+            border: 2px dashed var(--color-primary-blue);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: var(--color-bg-light);
+        }
+
+        .photo-upload:hover {
+            border-color: var(--color-primary-blue-dark);
+            background: var(--color-bg-gray);
+        }
+
+        .photo-upload input {
+            display: none;
+        }
+
+        .photo-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: var(--spacing-md);
+            border-radius: var(--radius-md);
+        }
+
+        .history-grid {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .history-item {
+            background: var(--color-bg-light);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .history-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+        }
+
+        .history-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .history-info h4 {
+            margin: 0 0 var(--spacing-xs) 0;
+            color: var(--color-text-dark);
+        }
+
+        .history-info p {
+            margin: 0;
+            color: var(--color-text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .logout-btn {
+            background: none;
+            border: 2px solid var(--color-text-light);
+            color: var(--color-text-light);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+        }
+
+        .logout-btn:hover {
+            background: var(--color-text-light);
+            color: var(--color-primary-blue);
+        }
+
+        @media (max-width: 768px) {
+            .intake-form {
+                grid-template-columns: 1fr;
+            }
+
+            .adherence-display {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <span class="icon-mock icon-clock"></span>
+                <span class="icon-mock icon-pill-green"></span>
+                <h1>MedGuardian</h1>
+            </div>
+            <nav class="nav-options">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="medications.html">Medications</a>
+                <a href="tracking.html">Tracking</a>
+                <a href="family.html">Family</a>
+                <a href="emergency.html">Emergency</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tracking-container">
+        <div class="tracking-header">
+            <h1>📊 Medication Tracking</h1>
+            <p>Monitor your medication adherence and upload proof of intake</p>
+
+            <div class="adherence-display">
+                <div class="adherence-circle" id="adherenceCircle">
+                    <span id="adherencePercent">0%</span>
+                </div>
+                <div class="adherence-stats">
+                    <div><strong>Total Expected:</strong> <span id="totalExpected">0</span> doses</div>
+                    <div><strong>Total Taken:</strong> <span id="totalTaken">0</span> doses</div>
+                    <div><strong>Tracking Period:</strong> Last 7 days</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="record-intake-section">
+            <h2>Record Medication Intake</h2>
+            <p class="mb-md">Select the medication you just took and optionally upload a photo</p>
+
+            <div class="intake-form">
+                <div class="form-group">
+                    <label for="medicationSelect" class="form-label">Select Medication</label>
+                    <select id="medicationSelect" class="form-select" required>
+                        <option value="">Choose a medication...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Upload Photo (Optional)</label>
+                    <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+                        <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(event)">
+                        <div id="uploadText">📷 Click to upload photo</div>
+                        <img id="photoPreview" class="photo-preview hidden" alt="Preview">
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-lg" onclick="recordIntake()">
+                    ✓ Record Intake
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Intake History</h2>
+            </div>
+            <div class="card-body">
+                <div class="history-grid" id="historyGrid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No intake records yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="modal-overlay hidden" onclick="closePhotoModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Intake Photo</h2>
+                <button class="modal-close" onclick="closePhotoModal()">&times;</button>
+            </div>
+            <img id="modalPhoto" style="width: 100%; border-radius: var(--radius-md);" alt="Intake photo">
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 MedGuardian. All rights reserved.</p>
+        <div>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a> |
+            <a href="mailto:support@medguardian.com">Support</a>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        MedGuardian.AuthManager.requireAuth();
+
+        let currentPhotoBase64 = null;
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                MedGuardian.AuthManager.logout();
+            }
+        }
+
+        // Preview photo before upload
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                MedGuardian.Utils.imageToBase64(file).then(base64 => {
+                    currentPhotoBase64 = base64;
+                    document.getElementById('photoPreview').src = base64;
+                    document.getElementById('photoPreview').classList.remove('hidden');
+                    document.getElementById('uploadText').textContent = '✓ Photo selected';
+                });
+            }
+        }
+
+        // Record medication intake
+        async function recordIntake() {
+            const medicationId = parseInt(document.getElementById('medicationSelect').value);
+
+            if (!medicationId) {
+                MedGuardian.Utils.showAlert('Please select a medication', 'warning');
+                return;
+            }
+
+            try {
+                await MedGuardian.IntakeTracker.recordIntake(medicationId, currentPhotoBase64);
+                MedGuardian.Utils.showAlert('Intake recorded successfully!', 'success');
+
+                // Reset form
+                document.getElementById('medicationSelect').value = '';
+                document.getElementById('photoInput').value = '';
+                document.getElementById('photoPreview').classList.add('hidden');
+                document.getElementById('uploadText').textContent = '📷 Click to upload photo';
+                currentPhotoBase64 = null;
+
+                // Reload data
+                loadAdherenceStats();
+                loadIntakeHistory();
+            } catch (error) {
+                MedGuardian.Utils.showAlert('Failed to record intake', 'error');
+            }
+        }
+
+        // Load medications into dropdown
+        async function loadMedications() {
+            const medications = await MedGuardian.MedicationManager.getUserMedications();
+            const select = document.getElementById('medicationSelect');
+
+            select.innerHTML = '<option value="">Choose a medication...</option>';
+
+            medications.forEach(med => {
+                const option = document.createElement('option');
+                option.value = med.id;
+                option.textContent = `${med.name} (${med.dosage})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Load adherence statistics
+        async function loadAdherenceStats() {
+            const stats = await MedGuardian.IntakeTracker.getAdherenceStats(7);
+
+            document.getElementById('adherencePercent').textContent = stats.adherenceRate + '%';
+            document.getElementById('totalExpected').textContent = stats.totalExpected;
+            document.getElementById('totalTaken').textContent = stats.totalTaken;
+
+            // Update circle progress
+            const circle = document.getElementById('adherenceCircle');
+            circle.style.setProperty('--progress', stats.adherenceRate + '%');
+        }
+
+        // Load intake history
+        async function loadIntakeHistory() {
+            const records = await MedGuardian.IntakeTracker.getUserIntakeRecords();
+            const gridEl = document.getElementById('historyGrid');
+
+            if (records.length === 0) {
+                gridEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No intake records yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by timestamp descending
+            records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            gridEl.innerHTML = '';
+
+            for (const record of records) {
+                const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
+
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    ${record.photo ?
+                        `<img src="${record.photo}" class="history-photo" onclick="showPhotoModal('${record.photo}')" alt="Intake photo">` :
+                        '<div style="width: 80px; height: 80px; background: var(--color-bg-gray); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 30px;">💊</div>'
+                    }
+                    <div class="history-info">
+                        <h4>${medication ? medication.name : 'Unknown'}</h4>
+                        <p>${medication ? medication.dosage : ''}</p>
+                        <p>${MedGuardian.Utils.formatDateTime(record.timestamp)}</p>
+                    </div>
+                    <span class="badge badge-success">Taken</span>
+                `;
+                gridEl.appendChild(item);
+            }
+        }
+
+        // Show photo in modal
+        function showPhotoModal(photoSrc) {
+            document.getElementById('modalPhoto').src = photoSrc;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        // Close photo modal
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+
+        // Initialize page
+        async function initPage() {
+            await loadMedications();
+            await loadAdherenceStats();
+            await loadIntakeHistory();
+        }
+
+        initPage();
+    </script>
+</body>
+
+</html>
