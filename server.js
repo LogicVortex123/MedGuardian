@@ -41,6 +41,9 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Serve static files (HTML, CSS, JS) - must be after API routes
+app.use(express.static(__dirname));
+
 // Error Handling Middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
