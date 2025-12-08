@@ -313,74 +313,100 @@
 
         // Load user information
         async function loadUserInfo() {
-            const userEmail = MedGuardian.AuthManager.getCurrentUser();
-            const user = await MedGuardian.db.get('users', userEmail);
+            try {
+                const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                let user = await MedGuardian.AuthManager.getUserProfile();
 
-            if (user) {
-                document.getElementById('userName').textContent = user.name || 'Not provided';
-                document.getElementById('userEmail').textContent = user.email;
-                document.getElementById('emergencyContact').textContent = user.emergencyContact || 'Not provided';
-                document.getElementById('lastUpdated').textContent = MedGuardian.Utils.formatDate(user.createdAt);
+                if (user) {
+                    document.getElementById('userName').textContent = user.name || user.fullName || 'Not provided';
+                    document.getElementById('userEmail').textContent = user.email || userEmail;
+                    document.getElementById('emergencyContact').textContent = user.emergencyContact || user.phone || 'Not provided';
+                    document.getElementById('lastUpdated').textContent = user.createdAt ? MedGuardian.Utils.formatDate(user.createdAt) : new Date().toLocaleDateString();
+                } else {
+                    document.getElementById('userName').textContent = 'User';
+                    document.getElementById('userEmail').textContent = userEmail;
+                    document.getElementById('emergencyContact').textContent = 'Not provided';
+                    document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+                const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                document.getElementById('userName').textContent = 'User';
+                document.getElementById('userEmail').textContent = userEmail || 'Not available';
+                document.getElementById('emergencyContact').textContent = 'Not provided';
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
             }
         }
 
         // Load current medications
         async function loadMedications() {
-            const medications = await MedGuardian.MedicationManager.getUserMedications();
-            const listEl = document.getElementById('medicationList');
+            try {
+                const medications = await MedGuardian.MedicationManager.getUserMedications();
+                const listEl = document.getElementById('medicationList');
 
-            if (medications.length === 0) {
-                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No medications recorded</span></li>';
-                return;
+                if (medications.length === 0) {
+                    listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No medications recorded</span></li>';
+                    return;
+                }
+
+                listEl.innerHTML = '';
+
+                medications.forEach(med => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div>
+                            <div class="med-name">${med.name}</div>
+                            <div class="med-dosage">${med.dosage} • ${med.frequency}</div>
+                        </div>
+                        <div class="badge badge-info">${med.time || 'As needed'}</div>
+                    `;
+                    listEl.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading medications:', error);
+                const listEl = document.getElementById('medicationList');
+                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">Error loading medications</span></li>';
             }
-
-            listEl.innerHTML = '';
-
-            medications.forEach(med => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div>
-                        <div class="med-name">${med.name}</div>
-                        <div class="med-dosage">${med.dosage} • ${med.frequency}</div>
-                    </div>
-                    <div class="badge badge-info">${med.time}</div>
-                `;
-                listEl.appendChild(li);
-            });
         }
 
         // Load recent intake (last 24 hours)
         async function loadRecentIntake() {
-            const now = new Date();
-            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
-            const todayStr = now.toISOString().split('T')[0];
+            try {
+                const now = new Date();
+                const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                const todayStr = now.toISOString().split('T')[0];
 
-            const records = await MedGuardian.IntakeTracker.getUserIntakeRecords(yesterdayStr, todayStr);
-            const listEl = document.getElementById('recentIntake');
+                const records = await MedGuardian.IntakeTracker.getUserIntakeRecords(yesterdayStr, todayStr);
+                const listEl = document.getElementById('recentIntake');
 
-            if (records.length === 0) {
-                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No recent intake records</span></li>';
-                return;
-            }
+                if (records.length === 0) {
+                    listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No recent intake records</span></li>';
+                    return;
+                }
 
-            listEl.innerHTML = '';
+                listEl.innerHTML = '';
 
-            // Sort by timestamp descending
-            records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                // Sort by timestamp descending
+                records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-            for (const record of records) {
-                const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
+                for (const record of records) {
+                    const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
 
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div>
-                        <div class="med-name">${medication ? medication.name : 'Unknown'}</div>
-                        <div class="med-dosage">${MedGuardian.Utils.formatDateTime(record.timestamp)}</div>
-                    </div>
-                    <span class="badge badge-success">✓ Taken</span>
-                `;
-                listEl.appendChild(li);
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div>
+                            <div class="med-name">${medication ? medication.name : 'Unknown'}</div>
+                            <div class="med-dosage">${MedGuardian.Utils.formatDateTime(record.timestamp)}</div>
+                        </div>
+                        <span class="badge badge-success">✓ Taken</span>
+                    `;
+                    listEl.appendChild(li);
+                }
+            } catch (error) {
+                console.error('Error loading recent intake:', error);
+                const listEl = document.getElementById('recentIntake');
+                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">Error loading intake records</span></li>';
             }
         }
 
