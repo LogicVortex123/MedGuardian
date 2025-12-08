@@ -292,7 +292,7 @@
 
         // Record medication intake
         async function recordIntake() {
-            const medicationId = parseInt(document.getElementById('medicationSelect').value);
+            const medicationId = document.getElementById('medicationSelect').value;
 
             if (!medicationId) {
                 MedGuardian.Utils.showAlert('Please select a medication', 'warning');
@@ -327,7 +327,7 @@
 
             medications.forEach(med => {
                 const option = document.createElement('option');
-                option.value = med.id;
+                option.value = med._id || med.id;
                 option.textContent = `${med.name} (${med.dosage})`;
                 select.appendChild(option);
             });
