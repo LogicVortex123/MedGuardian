@@ -273,29 +273,6 @@
             currentEditId = null;
             document.getElementById('modalTitle').textContent = 'Add Family Member';
         }
-        // Show edit modal
-        async function showEditModal(id) {
-            currentEditId = id;
-            const members = await MedGuardian.FamilyManager.getFamilyMembers();
-            const member = members.find(m => (m._id || m.id) == id);
-
-            if (member) {
-                document.getElementById('modalTitle').textContent = 'Edit Family Member';
-                document.getElementById('memberId').value = id;
-                document.getElementById('memberName').value = member.name;
-                document.getElementById('memberRelationship').value = member.relationship;
-                document.getElementById('memberPhone').value = member.phone;
-                document.getElementById('memberEmail').value = member.email || '';
-                document.getElementById('familyModal').classList.remove('hidden');
-            }
-        }
-
-        // Close modal
-        function closeModal() {
-            document.getElementById('familyModal').classList.add('hidden');
-            document.getElementById('familyForm').reset();
-            currentEditId = null;
-        }
 
         // Delete family member
         async function deleteMember(id) {
