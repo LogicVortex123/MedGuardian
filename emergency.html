@@ -127,18 +127,6 @@
             border-top: 2px solid var(--color-border);
         }
 
-        .qr-code {
-            width: 150px;
-            height: 150px;
-            background: var(--color-bg-gray);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto var(--spacing-md);
-            font-size: 80px;
-        }
-
         .logout-btn {
             background: none;
             border: 2px solid var(--color-text-light);
@@ -242,6 +230,21 @@
                 </div>
             </div>
 
+            <!-- Medical Information -->
+            <div class="info-section">
+                <h2 class="section-title">Medical Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Blood Type</div>
+                        <div class="info-value" id="bloodType">Not provided</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Health Conditions</div>
+                        <div class="info-value" id="healthConditions">Not provided</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Current Medications -->
             <div class="info-section">
                 <h2 class="section-title">Current Medications</h2>
@@ -256,8 +259,8 @@
             <div class="info-section">
                 <h2 class="section-title">Known Allergies</h2>
                 <div id="allergiesList">
-                    <p class="text-muted">No allergies recorded. <a href="profile.html">Add allergies in your
-                            profile</a>.</p>
+                    <p class="text-muted">No allergies recorded. <a href="profile.html" target="_blank">Add allergies in
+                            your profile</a>.</p>
                 </div>
             </div>
 
@@ -269,13 +272,6 @@
                         <span class="text-muted">No recent intake records</span>
                     </li>
                 </ul>
-            </div>
-
-            <!-- QR Code -->
-            <div class="info-section">
-                <h2 class="section-title text-center">Quick Access QR Code</h2>
-                <div id="qrcode" class="qr-code"></div>
-                <p class="text-center text-muted">Scan to access full medical profile online</p>
             </div>
 
             <!-- Action Buttons -->
@@ -333,6 +329,18 @@
                 document.getElementById('userEmail').textContent = userEmail || 'Not available';
                 document.getElementById('emergencyContact').textContent = 'Not provided';
                 document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+            }
+        }
+
+        // Load medical information from profile
+        async function loadMedicalInfo() {
+            try {
+                const profileData = JSON.parse(localStorage.getItem('userProfile') || '{}');
+
+                document.getElementById('bloodType').textContent = profileData.bloodType || 'Not provided';
+                document.getElementById('healthConditions').textContent = profileData.conditions || 'Not provided';
+            } catch (error) {
+                console.error('Error loading medical info:', error);
             }
         }
 
@@ -423,27 +431,10 @@
                         allergiesEl.appendChild(badge);
                     });
                 } else {
-                    allergiesEl.innerHTML = '<p class="text-muted">No allergies recorded. <a href="profile.html">Add allergies in your profile</a>.</p>';
+                    allergiesEl.innerHTML = '<p class="text-muted">No allergies recorded. <a href="profile.html" target="_blank">Add allergies in your profile</a>.</p>';
                 }
             } catch (error) {
                 console.error('Error loading allergies:', error);
-            }
-        }
-
-        // Generate QR Code
-        function generateQRCode() {
-            try {
-                const qrContainer = document.getElementById('qrcode');
-                const emergencyUrl = window.location.href;
-
-                // Simple QR code using Google Charts API
-                const qrSize = 150;
-                const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=${qrSize}x${qrSize}&chl=${encodeURIComponent(emergencyUrl)}`;
-
-                qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width: 100%; height: 100%; border-radius: var(--radius-md);">`;
-            } catch (error) {
-                console.error('Error generating QR code:', error);
-                document.getElementById('qrcode').innerHTML = '📱';
             }
         }
 
@@ -470,10 +461,10 @@
         // Initialize page
         async function initPage() {
             await loadUserInfo();
+            await loadMedicalInfo();
             await loadMedications();
             await loadRecentIntake();
             await loadAllergies();
-            generateQRCode();
         }
 
         initPage();
