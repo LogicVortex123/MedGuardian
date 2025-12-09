@@ -3,7 +3,9 @@
  * Connects frontend to MongoDB backend via Express API
  */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = window.location.protocol === 'file:'
+    ? 'http://localhost:5000/api'
+    : '/api';
 
 // ============================================
 // API Client Class
