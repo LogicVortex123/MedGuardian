@@ -157,7 +157,7 @@
                 <a href="medications.html">Medications</a>
                 <a href="tracking.html">Tracking</a>
                 <a href="family.html">Family</a>
-                <a href="emergency.html">Emergency</a>
+                <a href="emergency.html">Emergency</a>`r`n                <a href="profile.html">Profile</a>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </nav>
         </div>
@@ -274,84 +274,105 @@
 
         // Load user data
         async function loadUserData() {
-            const userEmail = MedGuardian.AuthManager.getCurrentUser();
-            const user = await MedGuardian.db.get('users', userEmail);
+            try {
+                const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                const user = await MedGuardian.AuthManager.getUserProfile();
 
-            if (user && user.name) {
-                document.getElementById('userName').textContent = user.name;
+                if (user && (user.name || user.fullName)) {
+                    document.getElementById('userName').textContent = user.name || user.fullName;
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
             }
         }
 
         // Load today's schedule
         async function loadTodaySchedule() {
-            const medications = await MedGuardian.MedicationManager.getUserMedications();
-            const scheduleEl = document.getElementById('todaySchedule');
+            try {
+                const medications = await MedGuardian.MedicationManager.getUserMedications();
+                const scheduleEl = document.getElementById('todaySchedule');
 
-            if (medications.length === 0) {
-                return; // Keep empty state
+                if (medications.length === 0) {
+                    return; // Keep empty state
+                }
+
+                scheduleEl.innerHTML = '';
+
+                medications.forEach(med => {
+                    const li = document.createElement('li');
+                    li.className = 'medication-item';
+                    li.innerHTML = `
+                        <div class="medication-info">
+                            <h4>${med.name}</h4>
+                            <p>${med.dosage} • ${med.frequency}</p>
+                        </div>
+                        <div class="medication-time">${med.time || 'Not set'}</div>
+                    `;
+                    scheduleEl.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading schedule:', error);
             }
-
-            scheduleEl.innerHTML = '';
-
-            medications.forEach(med => {
-                const li = document.createElement('li');
-                li.className = 'medication-item';
-                li.innerHTML = `
-                    <div class="medication-info">
-                        <h4>${med.name}</h4>
-                        <p>${med.dosage} • ${med.frequency}</p>
-                    </div>
-                    <div class="medication-time">${med.time || 'Not set'}</div>
-                `;
-                scheduleEl.appendChild(li);
-            });
         }
 
         // Load statistics
         async function loadStatistics() {
-            const medications = await MedGuardian.MedicationManager.getUserMedications();
-            const familyMembers = await MedGuardian.FamilyManager.getFamilyMembers();
-            const stats = await MedGuardian.IntakeTracker.getAdherenceStats(7);
+            try {
+                const medications = await MedGuardian.MedicationManager.getUserMedications();
+                const familyMembers = await MedGuardian.FamilyManager.getFamilyMembers();
+                const stats = await MedGuardian.IntakeTracker.getAdherenceStats(7);
 
-            // Get today's intake count
-            const today = new Date().toISOString().split('T')[0];
-            const todayRecords = await MedGuardian.IntakeTracker.getUserIntakeRecords(today, today);
+                // Get today's intake count
+                const today = new Date().toISOString().split('T')[0];
+                const todayRecords = await MedGuardian.IntakeTracker.getUserIntakeRecords(today, today);
 
-            document.getElementById('totalMeds').textContent = medications.length;
-            document.getElementById('familyMembers').textContent = familyMembers.length;
-            document.getElementById('adherenceRate').textContent = stats.adherenceRate + '%';
-            document.getElementById('takenToday').textContent = todayRecords.length;
+                document.getElementById('totalMeds').textContent = medications.length;
+                document.getElementById('familyMembers').textContent = familyMembers.length;
+                document.getElementById('adherenceRate').textContent = stats.adherenceRate + '%';
+                document.getElementById('takenToday').textContent = todayRecords.length;
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                // Set default values on error
+                document.getElementById('totalMeds').textContent = '0';
+                document.getElementById('familyMembers').textContent = '0';
+                document.getElementById('adherenceRate').textContent = '0%';
+                document.getElementById('takenToday').textContent = '0';
+            }
         }
 
         // Load recent activity
         async function loadRecentActivity() {
-            const records = await MedGuardian.IntakeTracker.getUserIntakeRecords();
-            const activityEl = document.getElementById('recentActivity');
+            try {
+                const records = await MedGuardian.IntakeTracker.getUserIntakeRecords();
+                const activityEl = document.getElementById('recentActivity');
 
-            if (records.length === 0) {
-                return; // Keep empty state
-            }
+                if (records.length === 0) {
+                    return; // Keep empty state
+                }
 
-            // Sort by timestamp descending and take last 5
-            const recentRecords = records
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 5);
+                // Sort by timestamp descending and take last 5
+                const recentRecords = records
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                    .slice(0, 5);
 
-            activityEl.innerHTML = '';
+                activityEl.innerHTML = '';
 
-            for (const record of recentRecords) {
-                const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
+                for (const record of recentRecords) {
+                    const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
 
-                const li = document.createElement('li');
-                li.className = 'medication-item';
-                li.innerHTML = `
-                    <div class="medication-info">
-                        <h4>${medication ? medication.name : 'Unknown'}</h4>
-                        <p>${MedGuardian.Utils.formatDateTime(record.timestamp)}</p>
-                    </div>
-                    <span class="badge badge-success">Taken</span>
-                `;
-                activityEl.appendChild(li);
+                    const li = document.createElement('li');
+                    li.className = 'medication-item';
+                    li.innerHTML = `
+                        <div class="medication-info">
+                            <h4>${medication ? medication.name : 'Unknown'}</h4>
+                            <p>${MedGuardian.Utils.formatDateTime(record.timestamp)}</p>
+                        </div>
+                        <span class="badge badge-success">Taken</span>
+                    `;
+                    activityEl.appendChild(li);
+                }
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
             }
         }
 
