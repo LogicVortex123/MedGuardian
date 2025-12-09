@@ -272,6 +272,9 @@
         function showAddModal() {
             currentEditId = null;
             document.getElementById('modalTitle').textContent = 'Add Family Member';
+            document.getElementById('familyForm').reset();
+            document.getElementById('memberId').value = '';
+            document.getElementById('familyModal').classList.remove('hidden');
         }
         // Show edit modal
         async function showEditModal(id) {

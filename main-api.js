@@ -167,7 +167,7 @@ class MedicationManager {
 
     static async getMedication(id) {
         const medications = await this.getUserMedications();
-        return medications.find(m => m._id === id || m.id === id);
+        return medications.find(m => m._id === id);
     }
 }
 
