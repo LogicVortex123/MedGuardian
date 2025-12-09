@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,7 +48,7 @@
             padding: var(--spacing-2xl);
             box-shadow: var(--shadow-xl);
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
             position: relative;
             z-index: 10;
             animation: slideUp 0.5s ease;
@@ -93,6 +94,72 @@
             margin: 0;
         }
 
+        .login-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .login-type-btn {
+            padding: var(--spacing-md);
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .login-type-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: var(--color-bg-gray);
+        }
+
+        .login-type-btn.active {
+            border-color: var(--color-primary-blue);
+            background: var(--color-primary-blue);
+            color: var(--color-text-light);
+        }
+
+        .login-type-btn .icon {
+            font-size: 30px;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .login-type-btn .label {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .login-type-btn .desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+            margin-top: var(--spacing-xs);
+        }
+
+        .login-type-btn.active .desc {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .guardian-info {
+            background: var(--color-secondary-yellow);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            display: none;
+        }
+
+        .guardian-info.show {
+            display: block;
+        }
+
+        .guardian-info p {
+            margin: 0;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-dark);
+        }
+
         .footer-links {
             text-align: center;
             margin-top: var(--spacing-lg);
@@ -110,6 +177,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="bg-decor bg-circle-1"></div>
     <div class="bg-decor bg-circle-2"></div>
@@ -121,40 +189,46 @@
                 <span class="icon-small icon-pill"></span>
             </div>
             <h1>Welcome Back</h1>
-            <p>Sign in to manage your medications</p>
+            <p>Sign in to manage medications</p>
+        </div>
+
+        <!-- Login Type Selector -->
+        <div class="login-type-selector">
+            <div class="login-type-btn active" onclick="selectLoginType('patient')" id="patientBtn">
+                <div class="icon">👤</div>
+                <div class="label">Patient</div>
+                <div class="desc">Manage my medications</div>
+            </div>
+            <div class="login-type-btn" onclick="selectLoginType('guardian')" id="guardianBtn">
+                <div class="icon">👨‍👩‍👧</div>
+                <div class="label">Guardian</div>
+                <div class="desc">Monitor family member</div>
+            </div>
+        </div>
+
+        <!-- Guardian Info -->
+        <div class="guardian-info" id="guardianInfo">
+            <p><strong>👨‍👩‍👧 Guardian Access:</strong> Login with your email to view and receive notifications about
+                your family member's medication schedule and adherence.</p>
         </div>
 
         <form id="loginForm">
             <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-input" 
-                    required 
-                    placeholder="Enter your email"
-                    aria-label="Email Address"
-                >
+                <input type="email" id="email" name="email" class="form-input" required placeholder="Enter your email"
+                    aria-label="Email Address">
             </div>
 
             <div class="form-group">
                 <label for="password" class="form-label">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-input" 
-                    required 
-                    placeholder="Enter your password"
-                    aria-label="Password"
-                >
+                <input type="password" id="password" name="password" class="form-input" required
+                    placeholder="Enter your password" aria-label="Password">
             </div>
 
             <div id="errorMessage" class="form-error" role="alert"></div>
 
             <button type="submit" class="btn btn-primary btn-full btn-lg">
-                Sign In
+                <span id="loginBtnText">Sign In as Patient</span>
             </button>
         </form>
 
@@ -168,7 +242,29 @@
 
     <script src="main-api.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        let currentLoginType = 'patient';
+
+        function selectLoginType(type) {
+            currentLoginType = type;
+            const patientBtn = document.getElementById('patientBtn');
+            const guardianBtn = document.getElementById('guardianBtn');
+            const guardianInfo = document.getElementById('guardianInfo');
+            const loginBtnText = document.getElementById('loginBtnText');
+
+            if (type === 'patient') {
+                patientBtn.classList.add('active');
+                guardianBtn.classList.remove('active');
+                guardianInfo.classList.remove('show');
+                loginBtnText.textContent = 'Sign In as Patient';
+            } else {
+                guardianBtn.classList.add('active');
+                patientBtn.classList.remove('active');
+                guardianInfo.classList.add('show');
+                loginBtnText.textContent = 'Sign In as Guardian';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
             event.preventDefault();
 
             const email = document.getElementById('email').value.trim();
@@ -187,12 +283,22 @@
             const result = await MedGuardian.AuthManager.login(email, password);
 
             if (result.success) {
+                // Store login type
+                localStorage.setItem('loginType', currentLoginType);
+
                 // Show success message
-                MedGuardian.Utils.showAlert('Login successful! Redirecting...', 'success');
-                
-                // Redirect to dashboard
+                const message = currentLoginType === 'guardian'
+                    ? 'Guardian login successful! Redirecting to family dashboard...'
+                    : 'Login successful! Redirecting...';
+                MedGuardian.Utils.showAlert(message, 'success');
+
+                // Redirect based on login type
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    if (currentLoginType === 'guardian') {
+                        window.location.href = 'family.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
                 }, 1000);
             } else {
                 errorMessage.textContent = result.error || 'Login failed. Please try again.';
@@ -201,8 +307,14 @@
 
         // Check if already logged in
         if (MedGuardian.AuthManager.isLoggedIn()) {
-            window.location.href = 'dashboard.html';
+            const loginType = localStorage.getItem('loginType') || 'patient';
+            if (loginType === 'guardian') {
+                window.location.href = 'family.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
         }
     </script>
 </body>
+
 </html>

@@ -204,7 +204,6 @@
                 <a href="medications.html">Medications</a>
                 <a href="tracking.html">Tracking</a>
                 <a href="family.html">Family</a>
-                <a href="profile.html">Profile</a>
                 <a href="emergency.html">Emergency</a>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </nav>
@@ -256,8 +255,8 @@
             <div class="info-section">
                 <h2 class="section-title">Known Allergies</h2>
                 <div id="allergiesList">
-                    <p class="text-muted">No allergies recorded. <a href="profile.html">Add allergies in your
-                            profile</a>.</p>
+                    <p class="text-muted">No allergies recorded. You can add this information in your profile settings.
+                    </p>
                 </div>
             </div>
 
@@ -273,211 +272,157 @@
 
             <!-- QR Code -->
             <div class="info-section">
-                <h2 class="section-title text-center">Quick Access QR Code</h2>
-                <div id="qrcode" class="qr-code"></div>
-                <p class="text-center text-muted">Scan to access full medical profile online</p>
-            </div>
+                <div>
+                    <a href="#">Privacy Policy</a> |
+                    <a href="#">Terms of Service</a> |
+                    <a href="mailto:support@medguardian.com">Support</a>
+                </div>
+                </footer>
 
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="btn btn-danger btn-full" onclick="window.print()">
-                    🖨️ Print Emergency Card
-                </button>
-                <button class="btn btn-secondary btn-full" onclick="shareCard()">
-                    📤 Share Card
-                </button>
-            </div>
-        </div>
-    </main>
+                <script src="main-api.js"></script>
+                <script>
+                    MedGuardian.AuthManager.requireAuth();
 
-    <footer>
-        <p>&copy; 2025 MedGuardian. All rights reserved.</p>
-        <div>
-            <a href="#">Privacy Policy</a> |
-            <a href="#">Terms of Service</a> |
-            <a href="mailto:support@medguardian.com">Support</a>
-        </div>
-    </footer>
+                    function logout() {
+                        if (confirm('Are you sure you want to logout?')) {
+                            MedGuardian.AuthManager.logout();
+                        }
+                    }
 
-    <script src="main-api.js"></script>
-    <script>
-        MedGuardian.AuthManager.requireAuth();
+                    // Load user information
+                    async function loadUserInfo() {
+                        try {
+                            const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                            let user = await MedGuardian.AuthManager.getUserProfile();
 
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                MedGuardian.AuthManager.logout();
-            }
-        }
+                            if (user) {
+                                document.getElementById('userName').textContent = user.name || user.fullName || 'Not provided';
+                                document.getElementById('userEmail').textContent = user.email || userEmail;
+                                document.getElementById('emergencyContact').textContent = user.emergencyContact || user.phone || 'Not provided';
+                                document.getElementById('lastUpdated').textContent = user.createdAt ? MedGuardian.Utils.formatDate(user.createdAt) : new Date().toLocaleDateString();
+                            } else {
+                                document.getElementById('userName').textContent = 'User';
+                                document.getElementById('userEmail').textContent = userEmail;
+                                document.getElementById('emergencyContact').textContent = 'Not provided';
+                                document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+                            }
+                        } catch (error) {
+                            console.error('Error loading user info:', error);
+                            const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                            document.getElementById('userName').textContent = 'User';
+                            document.getElementById('userEmail').textContent = userEmail || 'Not available';
+                            document.getElementById('emergencyContact').textContent = 'Not provided';
+                            document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+                        }
+                    }
 
-        // Load user information
-        async function loadUserInfo() {
-            try {
-                const userEmail = MedGuardian.AuthManager.getCurrentUser();
-                let user = await MedGuardian.AuthManager.getUserProfile();
+                    // Load current medications
+                    async function loadMedications() {
+                        try {
+                            const medications = await MedGuardian.MedicationManager.getUserMedications();
+                            const listEl = document.getElementById('medicationList');
 
-                if (user) {
-                    document.getElementById('userName').textContent = user.name || user.fullName || 'Not provided';
-                    document.getElementById('userEmail').textContent = user.email || userEmail;
-                    document.getElementById('emergencyContact').textContent = user.emergencyContact || user.phone || 'Not provided';
-                    document.getElementById('lastUpdated').textContent = user.createdAt ? MedGuardian.Utils.formatDate(user.createdAt) : new Date().toLocaleDateString();
-                } else {
-                    document.getElementById('userName').textContent = 'User';
-                    document.getElementById('userEmail').textContent = userEmail;
-                    document.getElementById('emergencyContact').textContent = 'Not provided';
-                    document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
-                }
-            } catch (error) {
-                console.error('Error loading user info:', error);
-                const userEmail = MedGuardian.AuthManager.getCurrentUser();
-                document.getElementById('userName').textContent = 'User';
-                document.getElementById('userEmail').textContent = userEmail || 'Not available';
-                document.getElementById('emergencyContact').textContent = 'Not provided';
-                document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
-            }
-        }
+                            if (medications.length === 0) {
+                                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No medications recorded</span></li>';
+                                return;
+                            }
 
-        // Load current medications
-        async function loadMedications() {
-            try {
-                const medications = await MedGuardian.MedicationManager.getUserMedications();
-                const listEl = document.getElementById('medicationList');
+                            listEl.innerHTML = '';
 
-                if (medications.length === 0) {
-                    listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No medications recorded</span></li>';
-                    return;
-                }
-
-                listEl.innerHTML = '';
-
-                medications.forEach(med => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
+                            medications.forEach(med => {
+                                const li = document.createElement('li');
+                                li.innerHTML = `
                         <div>
                             <div class="med-name">${med.name}</div>
                             <div class="med-dosage">${med.dosage} • ${med.frequency}</div>
                         </div>
                         <div class="badge badge-info">${med.time || 'As needed'}</div>
                     `;
-                    listEl.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error loading medications:', error);
-                const listEl = document.getElementById('medicationList');
-                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">Error loading medications</span></li>';
-            }
-        }
+                                listEl.appendChild(li);
+                            });
+                        } catch (error) {
+                            console.error('Error loading medications:', error);
+                            const listEl = document.getElementById('medicationList');
+                            listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">Error loading medications</span></li>';
+                        }
+                    }
 
-        // Load recent intake (last 24 hours)
-        async function loadRecentIntake() {
-            try {
-                const now = new Date();
-                const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
-                const todayStr = now.toISOString().split('T')[0];
+                    // Load recent intake (last 24 hours)
+                    async function loadRecentIntake() {
+                        try {
+                            const now = new Date();
+                            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                            const yesterdayStr = yesterday.toISOString().split('T')[0];
+                            const todayStr = now.toISOString().split('T')[0];
 
-                const records = await MedGuardian.IntakeTracker.getUserIntakeRecords(yesterdayStr, todayStr);
-                const listEl = document.getElementById('recentIntake');
+                            const records = await MedGuardian.IntakeTracker.getUserIntakeRecords(yesterdayStr, todayStr);
+                            const listEl = document.getElementById('recentIntake');
 
-                if (records.length === 0) {
-                    listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No recent intake records</span></li>';
-                    return;
-                }
+                            if (records.length === 0) {
+                                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">No recent intake records</span></li>';
+                                return;
+                            }
 
-                listEl.innerHTML = '';
+                            listEl.innerHTML = '';
 
-                // Sort by timestamp descending
-                records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                            // Sort by timestamp descending
+                            records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-                for (const record of records) {
-                    const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
+                            for (const record of records) {
+                                const medication = await MedGuardian.MedicationManager.getMedication(record.medicationId);
 
-                    const li = document.createElement('li');
-                    li.innerHTML = `
+                                const li = document.createElement('li');
+                                li.innerHTML = `
                         <div>
                             <div class="med-name">${medication ? medication.name : 'Unknown'}</div>
                             <div class="med-dosage">${MedGuardian.Utils.formatDateTime(record.timestamp)}</div>
                         </div>
                         <span class="badge badge-success">✓ Taken</span>
                     `;
-                    listEl.appendChild(li);
-                }
-            } catch (error) {
-                console.error('Error loading recent intake:', error);
-                const listEl = document.getElementById('recentIntake');
-                listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">Error loading intake records</span></li>';
-            }
-        }
+                                listEl.appendChild(li);
+                            }
+                        } catch (error) {
+                            console.error('Error loading recent intake:', error);
+                            const listEl = document.getElementById('recentIntake');
+                            listEl.innerHTML = '<li style="background: transparent; justify-content: center;"><span class="text-muted">Error loading intake records</span></li>';
+                        }
+                    }
 
-        // Load allergies from profile
-        async function loadAllergies() {
-            try {
-                const profileData = JSON.parse(localStorage.getItem('userProfile') || '{}');
-                const allergiesEl = document.getElementById('allergiesList');
+                    // Download card as PDF (simulated)
+                    function downloadCard() {
+                        MedGuardian.Utils.showAlert('PDF download feature coming soon! Use Print to save as PDF.', 'info');
+                        // In production, you would use a library like jsPDF or html2pdf
+                    }
 
-                if (profileData.allergies && profileData.allergies.length > 0) {
-                    allergiesEl.innerHTML = '';
-                    profileData.allergies.forEach(allergy => {
-                        const badge = document.createElement('span');
-                        badge.className = 'allergy-badge';
-                        badge.textContent = allergy;
-                        allergiesEl.appendChild(badge);
-                    });
-                } else {
-                    allergiesEl.innerHTML = '<p class="text-muted">No allergies recorded. <a href="profile.html">Add allergies in your profile</a>.</p>';
-                }
-            } catch (error) {
-                console.error('Error loading allergies:', error);
-            }
-        }
+                    // Share card
+                    function shareCard() {
+                        if (navigator.share) {
+                            navigator.share({
+                                title: 'MedGuardian Emergency Card',
+                                text: 'My emergency medical information',
+                                url: window.location.href
+                            }).catch(() => {
+                                copyLink();
+                            });
+                        } else {
+                            copyLink();
+                        }
+                    }
 
-        // Generate QR Code
-        function generateQRCode() {
-            try {
-                const qrContainer = document.getElementById('qrcode');
-                const emergencyUrl = window.location.href;
+                    function copyLink() {
+                        navigator.clipboard.writeText(window.location.href);
+                        MedGuardian.Utils.showAlert('Link copied to clipboard!', 'success');
+                    }
 
-                // Simple QR code using Google Charts API
-                const qrSize = 150;
-                const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=${qrSize}x${qrSize}&chl=${encodeURIComponent(emergencyUrl)}`;
+                    // Initialize page
+                    async function initPage() {
+                        await loadUserInfo();
+                        await loadMedications();
+                        await loadRecentIntake();
+                    }
 
-                qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width: 100%; height: 100%; border-radius: var(--radius-md);">`;
-            } catch (error) {
-                console.error('Error generating QR code:', error);
-                document.getElementById('qrcode').innerHTML = '📱';
-            }
-        }
-
-        // Share card
-        function shareCard() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'MedGuardian Emergency Card',
-                    text: 'My emergency medical information',
-                    url: window.location.href
-                }).catch(() => {
-                    copyLink();
-                });
-            } else {
-                copyLink();
-            }
-        }
-
-        function copyLink() {
-            navigator.clipboard.writeText(window.location.href);
-            MedGuardian.Utils.showAlert('Link copied to clipboard!', 'success');
-        }
-
-        // Initialize page
-        async function initPage() {
-            await loadUserInfo();
-            await loadMedications();
-            await loadRecentIntake();
-            await loadAllergies();
-            generateQRCode();
-        }
-
-        initPage();
-    </script>
+                    initPage();
+                </script>
 </body>
 
 </html>

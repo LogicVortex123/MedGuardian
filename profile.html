@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGuardian - Profile Settings</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--color-primary-blue), var(--color-primary-blue-dark));
+            color: var(--color-text-light);
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .profile-header h1 {
+            color: var(--color-text-light);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .allergy-badge {
+            display: inline-block;
+            background: var(--color-error);
+            color: var(--color-text-light);
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-right: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            position: relative;
+            padding-right: var(--spacing-2xl);
+        }
+
+        .allergy-badge .remove-btn {
+            position: absolute;
+            right: var(--spacing-xs);
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--color-text-light);
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .allergy-badge .remove-btn:hover {
+            opacity: 0.8;
+        }
+
+        .allergy-input-group {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .allergy-input-group input {
+            flex: 1;
+        }
+
+        .allergies-list {
+            min-height: 60px;
+            padding: var(--spacing-md);
+            background: var(--color-bg-gray);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .logout-btn {
+            background: none;
+            border: 2px solid var(--color-text-light);
+            color: var(--color-text-light);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+        }
+
+        .logout-btn:hover {
+            background: var(--color-text-light);
+            color: var(--color-primary-blue);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <span class="icon-mock icon-clock"></span>
+                <span class="icon-mock icon-pill-green"></span>
+                <h1>MedGuardian</h1>
+            </div>
+            <nav class="nav-options">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="medications.html">Medications</a>
+                <a href="tracking.html">Tracking</a>
+                <a href="family.html">Family</a>
+                <a href="emergency.html">Emergency</a>`r`n                <a href="profile.html">Profile</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="profile-container">
+        <div class="profile-header">
+            <h1>⚙️ Profile Settings</h1>
+            <p>Manage your personal information and medical details</p>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Personal Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" id="fullName" class="form-input" placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="your@email.com" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" id="phone" class="form-input" placeholder="+1 (555) 123-4567">
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyContact" class="form-label">Emergency Contact</label>
+                    <input type="tel" id="emergencyContact" class="form-input" placeholder="Emergency contact number">
+                </div>
+
+                <button class="btn btn-primary" onclick="savePersonalInfo()">💾 Save Personal Info</button>
+            </div>
+        </div>
+
+        <!-- Known Allergies -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Known Allergies</h2>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-md">Add any medications, foods, or substances you're allergic to. This
+                    information will appear on your emergency card.</p>
+
+                <div class="allergies-list" id="allergiesList">
+                    <p class="text-muted">No allergies recorded</p>
+                </div>
+
+                <div class="allergy-input-group">
+                    <input type="text" id="allergyInput" class="form-input"
+                        placeholder="Enter allergy (e.g., Penicillin, Peanuts)">
+                    <button class="btn btn-danger" onclick="addAllergy()">➕ Add Allergy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Conditions -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Medical Conditions</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="conditions" class="form-label">Chronic Conditions</label>
+                    <textarea id="conditions" class="form-input" rows="4"
+                        placeholder="List any chronic medical conditions (e.g., Diabetes, Hypertension)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="bloodType" class="form-label">Blood Type</label>
+                    <select id="bloodType" class="form-select">
+                        <option value="">Select blood type</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="saveMedicalInfo()">💾 Save Medical Info</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 MedGuardian. All rights reserved.</p>
+        <div>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a> |
+            <a href="mailto:support@medguardian.com">Support</a>
+        </div>
+    </footer>
+
+    <script src="main-api.js"></script>
+    <script>
+        MedGuardian.AuthManager.requireAuth();
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                MedGuardian.AuthManager.logout();
+            }
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            try {
+                const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                const user = await MedGuardian.AuthManager.getUserProfile();
+
+                if (user) {
+                    document.getElementById('fullName').value = user.name || user.fullName || '';
+                    document.getElementById('email').value = user.email || userEmail;
+                    document.getElementById('phone').value = user.phone || '';
+                    document.getElementById('emergencyContact').value = user.emergencyContact || '';
+                    document.getElementById('conditions').value = user.conditions || '';
+                    document.getElementById('bloodType').value = user.bloodType || '';
+
+                    // Load allergies
+                    if (user.allergies && Array.isArray(user.allergies)) {
+                        displayAllergies(user.allergies);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Display allergies
+        function displayAllergies(allergies) {
+            const listEl = document.getElementById('allergiesList');
+
+            if (!allergies || allergies.length === 0) {
+                listEl.innerHTML = '<p class="text-muted">No allergies recorded</p>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+            allergies.forEach((allergy, index) => {
+                const badge = document.createElement('span');
+                badge.className = 'allergy-badge';
+                badge.innerHTML = `
+                    ${allergy}
+                    <button class="remove-btn" onclick="removeAllergy(${index})" title="Remove">×</button>
+                `;
+                listEl.appendChild(badge);
+            });
+        }
+
+        // Add allergy
+        async function addAllergy() {
+            const input = document.getElementById('allergyInput');
+            const allergy = input.value.trim();
+
+            if (!allergy) {
+                MedGuardian.Utils.showAlert('Please enter an allergy', 'warning');
+                return;
+            }
+
+            try {
+                const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                let user = await MedGuardian.AuthManager.getUserProfile() || {};
+
+                if (!user.allergies) {
+                    user.allergies = [];
+                }
+
+                if (user.allergies.includes(allergy)) {
+                    MedGuardian.Utils.showAlert('This allergy is already added', 'warning');
+                    return;
+                }
+
+                user.allergies.push(allergy);
+
+                // Save to localStorage as fallback
+                const profileData = JSON.parse(localStorage.getItem('userProfile') || '{}');
+                profileData.allergies = user.allergies;
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+
+                displayAllergies(user.allergies);
+                input.value = '';
+                MedGuardian.Utils.showAlert('Allergy added successfully', 'success');
+            } catch (error) {
+                console.error('Error adding allergy:', error);
+                MedGuardian.Utils.showAlert('Failed to add allergy', 'error');
+            }
+        }
+
+        // Remove allergy
+        async function removeAllergy(index) {
+            try {
+                const userEmail = MedGuardian.AuthManager.getCurrentUser();
+                let user = await MedGuardian.AuthManager.getUserProfile() || {};
+
+                if (!user.allergies) {
+                    user.allergies = [];
+                }
+
+                user.allergies.splice(index, 1);
+
+                // Save to localStorage as fallback
+                const profileData = JSON.parse(localStorage.getItem('userProfile') || '{}');
+                profileData.allergies = user.allergies;
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+
+                displayAllergies(user.allergies);
+                MedGuardian.Utils.showAlert('Allergy removed', 'success');
+            } catch (error) {
+                console.error('Error removing allergy:', error);
+                MedGuardian.Utils.showAlert('Failed to remove allergy', 'error');
+            }
+        }
+
+        // Save personal info
+        async function savePersonalInfo() {
+            try {
+                const profileData = {
+                    name: document.getElementById('fullName').value,
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    emergencyContact: document.getElementById('emergencyContact').value
+                };
+
+                // Save to localStorage
+                const existing = JSON.parse(localStorage.getItem('userProfile') || '{}');
+                const updated = { ...existing, ...profileData };
+                localStorage.setItem('userProfile', JSON.stringify(updated));
+
+                MedGuardian.Utils.showAlert('Personal information saved successfully', 'success');
+            } catch (error) {
+                console.error('Error saving personal info:', error);
+                MedGuardian.Utils.showAlert('Failed to save personal information', 'error');
+            }
+        }
+
+        // Save medical info
+        async function saveMedicalInfo() {
+            try {
+                const medicalData = {
+                    conditions: document.getElementById('conditions').value,
+                    bloodType: document.getElementById('bloodType').value
+                };
+
+                // Save to localStorage
+                const existing = JSON.parse(localStorage.getItem('userProfile') || '{}');
+                const updated = { ...existing, ...medicalData };
+                localStorage.setItem('userProfile', JSON.stringify(updated));
+
+                MedGuardian.Utils.showAlert('Medical information saved successfully', 'success');
+            } catch (error) {
+                console.error('Error saving medical info:', error);
+                MedGuardian.Utils.showAlert('Failed to save medical information', 'error');
+            }
+        }
+
+        // Allow Enter key to add allergy
+        document.getElementById('allergyInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                addAllergy();
+            }
+        });
+
+        // Initialize
+        loadProfile();
+    </script>
+</body>
+
+</html>
